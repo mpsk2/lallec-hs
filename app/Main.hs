@@ -1,5 +1,9 @@
 module Main where
 
+import Latte.CLI (myTestInterface)
+import System.Console.ArgParser
+
 main :: IO ()
 main = do
-    putStrLn "jazda"
+    interface <- myTestInterface
+    runApp interface print
