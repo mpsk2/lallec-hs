@@ -166,7 +166,6 @@ instance Print (Expr a) where
     EMth _ mthcall -> prPrec i 6 (concatD [prt 0 mthcall])
     ESpecName _ specname -> prPrec i 6 (concatD [prt 0 specname])
     ENewAlloc _ newalloc -> prPrec i 6 (concatD [prt 0 newalloc])
-    EApp _ id args -> prPrec i 6 (concatD [prt 0 id, prt 0 args])
     EArr _ arracc -> prPrec i 6 (concatD [prt 0 arracc])
     EString _ str -> prPrec i 6 (concatD [prt 0 str])
     ENeg _ expr -> prPrec i 5 (concatD [doc (showString "-"), prt 6 expr])

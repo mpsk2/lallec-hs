@@ -312,9 +312,6 @@ Expr6 :: {
 | NewAlloc {
   (fst $1, Latte.Parser.Abs.ENewAlloc (fst $1)(snd $1)) 
 }
-| Ident Args {
-  (fst $1, Latte.Parser.Abs.EApp (fst $1)(snd $1)(snd $2)) 
-}
 | ArrAcc {
   (fst $1, Latte.Parser.Abs.EArr (fst $1)(snd $1)) 
 }

@@ -66,7 +66,6 @@ EFieldAcc. Expr6 ::= FieldAcc ;
 EMth.      Expr6 ::= MthCall ;
 ESpecName. Expr6 ::= SpecName ;
 ENewAlloc. Expr6 ::= NewAlloc ;
-EApp.      Expr6 ::= Ident Args ;
 EArr.      Expr6 ::= ArrAcc ;
 EString.   Expr6 ::= String ;
 ENeg.      Expr5 ::= "-" Expr6 ;

@@ -75,7 +75,6 @@ transExpr x = case x of
   EMth _ mthcall -> failure x
   ESpecName _ specname -> failure x
   ENewAlloc _ newalloc -> failure x
-  EApp _ ident args -> failure x
   EArr _ arracc -> failure x
   EString _ string -> failure x
   ENeg _ expr -> failure x

@@ -121,7 +121,6 @@ data Expr a
     | EMth a (MthCall a)
     | ESpecName a (SpecName a)
     | ENewAlloc a (NewAlloc a)
-    | EApp a Ident (Args a)
     | EArr a (ArrAcc a)
     | EString a String
     | ENeg a (Expr a)
@@ -142,7 +141,6 @@ instance Functor Expr where
         EMth a mthcall -> EMth (f a) (fmap f mthcall)
         ESpecName a specname -> ESpecName (f a) (fmap f specname)
         ENewAlloc a newalloc -> ENewAlloc (f a) (fmap f newalloc)
-        EApp a ident args -> EApp (f a) ident (fmap f args)
         EArr a arracc -> EArr (f a) (fmap f arracc)
         EString a string -> EString (f a) string
         ENeg a expr -> ENeg (f a) (fmap f expr)
