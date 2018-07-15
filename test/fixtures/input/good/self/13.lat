@@ -1,0 +1,5 @@
+class IntList {
+    int a;
+    IntList next;
+    IntList prev;
+}

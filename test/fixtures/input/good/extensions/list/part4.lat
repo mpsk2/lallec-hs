@@ -1,0 +1,6 @@
+int length (list xs) {
+  if (xs==(list)null)
+    return 0;
+  else
+    return 1 + length (xs.next);
+}

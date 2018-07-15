@@ -1,0 +1,15 @@
+class A {
+    int a;
+}
+class B {
+    int a;
+}
+class C {
+    int a;
+}
+void d() {
+    A a;
+    B b;
+    C c;
+    int d = a.a + b.a + c.a;
+}

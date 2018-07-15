@@ -1,0 +1,6 @@
+int main(int a) {
+    int[] a = new int[0];
+    for (int b : a) {
+        return 0;
+    }
+}

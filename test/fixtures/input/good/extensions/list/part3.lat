@@ -1,0 +1,7 @@
+list cons (int x, list xs) {
+  list n;
+  n = new list;
+  n.elem = x;
+  n.next = xs;
+  return n;
+}

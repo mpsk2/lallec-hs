@@ -1,0 +1,4 @@
+void a() {
+    int b, c, d;
+    int e = 4;
+}

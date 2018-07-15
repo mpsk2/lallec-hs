@@ -1,0 +1,2 @@
+int a() { return 0; }
+int b(int a, int b, int c) { return a + b + c; }

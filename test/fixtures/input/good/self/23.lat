@@ -1,0 +1,8 @@
+    void b() {
+        boolean a;
+        if (a) {
+            return;
+        } else {
+            return;
+        }
+    }

@@ -1,0 +1,14 @@
+class IntList {
+    int value;
+    IntList next;
+    IntList prev;
+}
+
+IntList singleton(int value) {
+    IntList ret = new IntList;
+    ret.value = value;
+    ret.next = null;
+    ret.prev = null;
+    return ret;
+}
+

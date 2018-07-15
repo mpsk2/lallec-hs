@@ -1,0 +1,17 @@
+int main(int a) {
+    boolean a = true;
+    if (true) {
+        while (a) {
+            a = false;
+        }
+        int[] a = new int[0];
+        for (int b : a) {
+            return 0;
+        }
+        if (true) {
+            ;
+        } else {
+            return 5;
+        }
+    }
+}

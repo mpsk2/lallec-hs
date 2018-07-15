@@ -1,0 +1,4 @@
+int main() {
+    int a = new jazda;
+    return 0;
+}

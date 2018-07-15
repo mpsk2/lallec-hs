@@ -1,0 +1,11 @@
+class A {
+}
+class B {
+}
+class C {
+}
+void d() {
+    A a;
+    B b;
+    C c;
+}

@@ -1,0 +1,22 @@
+class A {
+    A a;
+    int b;
+}
+
+class B {
+    A a;
+    B b;
+    int c;
+}
+
+class C {
+    A a;
+    B b;
+    C c;
+    int d;
+}
+
+int main() {
+    C c = new C;
+    return c.b.b.a.b;
+}

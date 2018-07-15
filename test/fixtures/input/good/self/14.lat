@@ -1,0 +1,10 @@
+class IntList {
+    int a;
+    IntList next;
+    IntList prev;
+}
+
+IntList empty() {
+    return null;
+}
+

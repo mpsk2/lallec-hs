@@ -1,0 +1,4 @@
+    void acceessArrayFieldValue() {
+        int[] a = new int[10];
+        int b = a[1] + a[3] + 5;
+    }

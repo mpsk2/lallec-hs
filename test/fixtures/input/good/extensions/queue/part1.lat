@@ -1,0 +1,32 @@
+class IntQueue {
+  Node front;
+  Node rear;
+
+  boolean isEmpty () { return front == (Node)null; }
+
+  void insert (int x) {
+    Node last = new Node;
+    last.setElem(x);
+    if (self.isEmpty())
+      front = last;
+    else 
+      rear.setNext(last);
+    rear = last;
+  }
+
+  int first () { return front.getElem(); }
+
+  void rmFirst () {
+    front = front.getNext();
+  }
+
+  int size () {
+      Node n = front;
+      int res = 0;
+      while (n != (Node)null) {
+        n = n.getNext();
+        res++;
+      }
+     return res;
+  }
+}

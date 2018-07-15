@@ -1,0 +1,6 @@
+    void b() {
+        boolean a;
+        while (a) {
+            return;
+        }
+    }

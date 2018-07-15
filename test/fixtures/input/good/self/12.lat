@@ -1,0 +1,15 @@
+class A {
+    int a;
+    int b;
+}
+
+A createA(int a, int b) {
+    A res = new A;
+    res.a = a;
+    res.b = b;
+    return res;
+}
+
+int main() {
+    return createA(1, 2).b;
+}

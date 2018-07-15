@@ -1,0 +1,4 @@
+void accessArrayLength() {
+         int[] a = new int[10];
+         int b = a.length;
+     }

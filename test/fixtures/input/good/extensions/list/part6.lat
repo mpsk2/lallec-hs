@@ -1,0 +1,8 @@
+int length2 (list xs) {
+  int res = 0;
+  while (xs != (list)null) {
+    res++;
+    xs = xs.next;
+  }
+  return res;
+}

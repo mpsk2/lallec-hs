@@ -1,0 +1,4 @@
+void a() {
+    int[] a = new int[16];
+    int b = a.length;
+}
