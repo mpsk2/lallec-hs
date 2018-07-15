@@ -32,17 +32,18 @@ except ``"`` unless preceded by ``\``.
 The set of reserved words is the set of terminals appearing in the grammar. Those reserved words that consist of non-letter characters are called symbols, and they are treated in a different way from those that are similar to identifiers. The lexer follows rules familiar from languages like Haskell, C, and Java, including longest match and spacing conventions.
 
 The reserved words used in Parser are the following:
-  | ``boolean`` | ``else`` | ``false`` | ``if``
-  | ``int`` | ``return`` | ``string`` | ``true``
-  | ``void`` | ``while`` |  | 
+  | ``boolean`` | ``class`` | ``else`` | ``extends``
+  | ``false`` | ``if`` | ``int`` | ``return``
+  | ``string`` | ``true`` | ``void`` | ``while``
 
 The symbols used in Parser are the following:
-  | ( | ) | , | {
-  | } | ; | = | ++
-  | -- | - | ! | &&
-  | || | + | * | /
-  | % | < | <= | >
-  | >= | == | != | 
+  | { | } | ( | )
+  | ; | , | = | ++
+  | -- | [ | ] | -
+  | ! | && | || | +
+  | * | / | % | <
+  | <= | > | >= | ==
+  | != |  |  | 
 
 ===Comments===
 Single-line comments begin with #, //.Multiple-line comments are  enclosed with /* and */.
@@ -54,9 +55,17 @@ and **eps** (empty rule) belong to the BNF notation.
 All other symbols are terminals.
 
   | //Program// | -> | //[TopDef]// 
-  | //TopDef// | -> | //Type// //Ident// ``(`` //[Arg]// ``)`` //Block// 
+  | //TopDef// | -> | //Fn// 
+  |  |  **|**  | //ClsHeader// ``{`` //[ClsElem]// ``}`` 
   | //[TopDef]// | -> | //TopDef// 
   |  |  **|**  | //TopDef// //[TopDef]// 
+  | //Fn// | -> | //Type// //Ident// ``(`` //[Arg]// ``)`` //Block// 
+  | //ClsHeader// | -> | ``class`` //Ident// 
+  |  |  **|**  | ``class`` //Ident// ``extends`` //Ident// 
+  | //ClsElem// | -> | //Fn// 
+  |  |  **|**  | //Type// //Ident// ``;`` 
+  | //[ClsElem]// | -> | **eps**
+  |  |  **|**  | //ClsElem// //[ClsElem]// 
   | //Arg// | -> | //Type// //Ident// 
   | //[Arg]// | -> | **eps**
   |  |  **|**  | //Arg// 
@@ -84,6 +93,7 @@ All other symbols are terminals.
   |  |  **|**  | ``string`` 
   |  |  **|**  | ``boolean`` 
   |  |  **|**  | ``void`` 
+  |  |  **|**  | //Type// ``[`` ``]`` 
   | //[Type]// | -> | **eps**
   |  |  **|**  | //Type// 
   |  |  **|**  | //Type// ``,`` //[Type]// 
@@ -92,6 +102,7 @@ All other symbols are terminals.
   |  |  **|**  | ``true`` 
   |  |  **|**  | ``false`` 
   |  |  **|**  | //Ident// ``(`` //[Expr]// ``)`` 
+  |  |  **|**  | //Ident// ``[`` //Expr// ``]`` 
   |  |  **|**  | //String// 
   |  |  **|**  | ``(`` //Expr// ``)`` 
   | //Expr5// | -> | ``-`` //Expr6// 

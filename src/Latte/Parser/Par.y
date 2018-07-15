@@ -33,19 +33,23 @@ import Latte.Parser.ErrM
   '==' { PT _ (TS _ 18) }
   '>' { PT _ (TS _ 19) }
   '>=' { PT _ (TS _ 20) }
-  'boolean' { PT _ (TS _ 21) }
-  'else' { PT _ (TS _ 22) }
-  'false' { PT _ (TS _ 23) }
-  'if' { PT _ (TS _ 24) }
-  'int' { PT _ (TS _ 25) }
-  'return' { PT _ (TS _ 26) }
-  'string' { PT _ (TS _ 27) }
-  'true' { PT _ (TS _ 28) }
-  'void' { PT _ (TS _ 29) }
-  'while' { PT _ (TS _ 30) }
-  '{' { PT _ (TS _ 31) }
-  '||' { PT _ (TS _ 32) }
-  '}' { PT _ (TS _ 33) }
+  '[' { PT _ (TS _ 21) }
+  ']' { PT _ (TS _ 22) }
+  'boolean' { PT _ (TS _ 23) }
+  'class' { PT _ (TS _ 24) }
+  'else' { PT _ (TS _ 25) }
+  'extends' { PT _ (TS _ 26) }
+  'false' { PT _ (TS _ 27) }
+  'if' { PT _ (TS _ 28) }
+  'int' { PT _ (TS _ 29) }
+  'return' { PT _ (TS _ 30) }
+  'string' { PT _ (TS _ 31) }
+  'true' { PT _ (TS _ 32) }
+  'void' { PT _ (TS _ 33) }
+  'while' { PT _ (TS _ 34) }
+  '{' { PT _ (TS _ 35) }
+  '||' { PT _ (TS _ 36) }
+  '}' { PT _ (TS _ 37) }
 
   L_ident {PT _ (TV _)}
   L_integ {PT _ (TI _)}
@@ -84,8 +88,11 @@ Program :: {
 TopDef :: {
   (Maybe (Int, Int), TopDef (Maybe (Int, Int)))
 }
-: Type Ident '(' ListArg ')' Block {
-  (fst $1, Latte.Parser.Abs.FnDef (fst $1)(snd $1)(snd $2)(snd $4)(snd $6)) 
+: Fn {
+  (fst $1, Latte.Parser.Abs.FnDef (fst $1)(snd $1)) 
+}
+| ClsHeader '{' ListClsElem '}' {
+  (fst $1, Latte.Parser.Abs.ClsDef (fst $1)(snd $1)(reverse (snd $3)))
 }
 
 ListTopDef :: {
@@ -96,6 +103,43 @@ ListTopDef :: {
 }
 | TopDef ListTopDef {
   (fst $1, (:) (snd $1)(snd $2)) 
+}
+
+Fn :: {
+  (Maybe (Int, Int), Fn (Maybe (Int, Int)))
+}
+: Type Ident '(' ListArg ')' Block {
+  (fst $1, Latte.Parser.Abs.Fn (fst $1)(snd $1)(snd $2)(snd $4)(snd $6)) 
+}
+
+ClsHeader :: {
+  (Maybe (Int, Int), ClsHeader (Maybe (Int, Int)))
+}
+: 'class' Ident {
+  (Just (tokenLineCol $1), Latte.Parser.Abs.BaseCls (Just (tokenLineCol $1)) (snd $2)) 
+}
+| 'class' Ident 'extends' Ident {
+  (Just (tokenLineCol $1), Latte.Parser.Abs.SubCls (Just (tokenLineCol $1)) (snd $2)(snd $4)) 
+}
+
+ClsElem :: {
+  (Maybe (Int, Int), ClsElem (Maybe (Int, Int)))
+}
+: Fn {
+  (fst $1, Latte.Parser.Abs.Method (fst $1)(snd $1)) 
+}
+| Type Ident ';' {
+  (fst $1, Latte.Parser.Abs.Field (fst $1)(snd $1)(snd $2)) 
+}
+
+ListClsElem :: {
+  (Maybe (Int, Int), [ClsElem (Maybe (Int, Int))]) 
+}
+: {
+  (Nothing, [])
+}
+| ListClsElem ClsElem {
+  (fst $1, flip (:) (snd $1)(snd $2)) 
 }
 
 Arg :: {
@@ -199,16 +243,19 @@ Type :: {
   (Maybe (Int, Int), Type (Maybe (Int, Int)))
 }
 : 'int' {
-  (Just (tokenLineCol $1), Latte.Parser.Abs.Int (Just (tokenLineCol $1)))
+  (Just (tokenLineCol $1), Latte.Parser.Abs.TInt (Just (tokenLineCol $1)))
 }
 | 'string' {
-  (Just (tokenLineCol $1), Latte.Parser.Abs.Str (Just (tokenLineCol $1)))
+  (Just (tokenLineCol $1), Latte.Parser.Abs.TStr (Just (tokenLineCol $1)))
 }
 | 'boolean' {
-  (Just (tokenLineCol $1), Latte.Parser.Abs.Bool (Just (tokenLineCol $1)))
+  (Just (tokenLineCol $1), Latte.Parser.Abs.TBool (Just (tokenLineCol $1)))
 }
 | 'void' {
-  (Just (tokenLineCol $1), Latte.Parser.Abs.Void (Just (tokenLineCol $1)))
+  (Just (tokenLineCol $1), Latte.Parser.Abs.TVoid (Just (tokenLineCol $1)))
+}
+| Type '[' ']' {
+  (fst $1, Latte.Parser.Abs.TArr (fst $1)(snd $1)) 
 }
 
 ListType :: {
@@ -242,6 +289,9 @@ Expr6 :: {
 | Ident '(' ListExpr ')' {
   (fst $1, Latte.Parser.Abs.EApp (fst $1)(snd $1)(snd $3)) 
 }
+| Ident '[' Expr ']' {
+  (fst $1, Latte.Parser.Abs.EArr (fst $1)(snd $1)(snd $3)) 
+}
 | String {
   (fst $1, Latte.Parser.Abs.EString (fst $1)(snd $1)) 
 }
@@ -253,10 +303,10 @@ Expr5 :: {
   (Maybe (Int, Int), Expr (Maybe (Int, Int)))
 }
 : '-' Expr6 {
-  (Just (tokenLineCol $1), Latte.Parser.Abs.Neg (Just (tokenLineCol $1)) (snd $2)) 
+  (Just (tokenLineCol $1), Latte.Parser.Abs.ENeg (Just (tokenLineCol $1)) (snd $2)) 
 }
 | '!' Expr6 {
-  (Just (tokenLineCol $1), Latte.Parser.Abs.Not (Just (tokenLineCol $1)) (snd $2)) 
+  (Just (tokenLineCol $1), Latte.Parser.Abs.ENot (Just (tokenLineCol $1)) (snd $2)) 
 }
 | Expr6 {
   (fst $1, snd $1)

@@ -89,8 +89,24 @@ instance Print (Program a) where
 
 instance Print (TopDef a) where
   prt i e = case e of
-    FnDef _ type_ id args block -> prPrec i 0 (concatD [prt 0 type_, prt 0 id, doc (showString "("), prt 0 args, doc (showString ")"), prt 0 block])
+    FnDef _ fn -> prPrec i 0 (concatD [prt 0 fn])
+    ClsDef _ clsheader clselems -> prPrec i 0 (concatD [prt 0 clsheader, doc (showString "{"), prt 0 clselems, doc (showString "}")])
   prtList _ [x] = (concatD [prt 0 x])
+  prtList _ (x:xs) = (concatD [prt 0 x, prt 0 xs])
+instance Print (Fn a) where
+  prt i e = case e of
+    Fn _ type_ id args block -> prPrec i 0 (concatD [prt 0 type_, prt 0 id, doc (showString "("), prt 0 args, doc (showString ")"), prt 0 block])
+
+instance Print (ClsHeader a) where
+  prt i e = case e of
+    BaseCls _ id -> prPrec i 0 (concatD [doc (showString "class"), prt 0 id])
+    SubCls _ id1 id2 -> prPrec i 0 (concatD [doc (showString "class"), prt 0 id1, doc (showString "extends"), prt 0 id2])
+
+instance Print (ClsElem a) where
+  prt i e = case e of
+    Method _ fn -> prPrec i 0 (concatD [prt 0 fn])
+    Field _ type_ id -> prPrec i 0 (concatD [prt 0 type_, prt 0 id, doc (showString ";")])
+  prtList _ [] = (concatD [])
   prtList _ (x:xs) = (concatD [prt 0 x, prt 0 xs])
 instance Print (Arg a) where
   prt i e = case e of
@@ -126,10 +142,11 @@ instance Print (Item a) where
   prtList _ (x:xs) = (concatD [prt 0 x, doc (showString ","), prt 0 xs])
 instance Print (Type a) where
   prt i e = case e of
-    Int _ -> prPrec i 0 (concatD [doc (showString "int")])
-    Str _ -> prPrec i 0 (concatD [doc (showString "string")])
-    Bool _ -> prPrec i 0 (concatD [doc (showString "boolean")])
-    Void _ -> prPrec i 0 (concatD [doc (showString "void")])
+    TInt _ -> prPrec i 0 (concatD [doc (showString "int")])
+    TStr _ -> prPrec i 0 (concatD [doc (showString "string")])
+    TBool _ -> prPrec i 0 (concatD [doc (showString "boolean")])
+    TVoid _ -> prPrec i 0 (concatD [doc (showString "void")])
+    TArr _ type_ -> prPrec i 0 (concatD [prt 0 type_, doc (showString "["), doc (showString "]")])
     Fun _ type_ types -> prPrec i 0 (concatD [prt 0 type_, doc (showString "("), prt 0 types, doc (showString ")")])
   prtList _ [] = (concatD [])
   prtList _ [x] = (concatD [prt 0 x])
@@ -141,9 +158,10 @@ instance Print (Expr a) where
     ELitTrue _ -> prPrec i 6 (concatD [doc (showString "true")])
     ELitFalse _ -> prPrec i 6 (concatD [doc (showString "false")])
     EApp _ id exprs -> prPrec i 6 (concatD [prt 0 id, doc (showString "("), prt 0 exprs, doc (showString ")")])
+    EArr _ id expr -> prPrec i 6 (concatD [prt 0 id, doc (showString "["), prt 0 expr, doc (showString "]")])
     EString _ str -> prPrec i 6 (concatD [prt 0 str])
-    Neg _ expr -> prPrec i 5 (concatD [doc (showString "-"), prt 6 expr])
-    Not _ expr -> prPrec i 5 (concatD [doc (showString "!"), prt 6 expr])
+    ENeg _ expr -> prPrec i 5 (concatD [doc (showString "-"), prt 6 expr])
+    ENot _ expr -> prPrec i 5 (concatD [doc (showString "!"), prt 6 expr])
     EMul _ expr1 mulop expr2 -> prPrec i 4 (concatD [prt 4 expr1, prt 0 mulop, prt 5 expr2])
     EAdd _ expr1 addop expr2 -> prPrec i 3 (concatD [prt 3 expr1, prt 0 addop, prt 4 expr2])
     ERel _ expr1 relop expr2 -> prPrec i 2 (concatD [prt 2 expr1, prt 0 relop, prt 3 expr2])

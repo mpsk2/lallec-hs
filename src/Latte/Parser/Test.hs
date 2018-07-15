@@ -3,6 +3,8 @@ module Latte.Parser.Test where
 
 
 import System.IO ( stdin, hGetContents )
+import System.Environment ( getArgs, getProgName )
+import System.Exit ( exitFailure, exitSuccess )
 import Control.Monad (when)
 
 import Latte.Parser.Lex
@@ -24,3 +26,6 @@ type Verbosity = Int
 
 run :: (Print a, Show a) => Verbosity -> ParseFun a -> String -> Err a
 run v p s = let ts = myLLexer s in p ts
+
+
+
