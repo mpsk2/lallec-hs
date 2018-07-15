@@ -31,6 +31,9 @@ initialVarState = VarState
 
 type VarRunner a = LatteRunner VarState a
 
+addVar :: Ident -> Position -> Type Position -> VarRunner ()
+addVar _ _ _ = throwError $ NotImplementedError "add var"
+
 levelUp :: VarRunner ()
 levelUp = do
     st <- get
@@ -47,21 +50,39 @@ levelDown = do
 class (Show a) => Var a where
     var :: a -> VarRunner ()
     typeVar :: a -> VarRunner (Maybe (Type Position))
-    addType :: a -> VarRunner ()
+    addType :: a -> VarRunner (Type Position)
 
     notImplemented :: a -> VarRunner ()
     notImplemented a = throwError $ NotImplementedError $ "variable check " ++ (show a)
 
     var a = notImplemented a
     typeVar a = notImplemented a >> return Nothing
-    addType a = notImplemented a
+    addType a = notImplemented a >> (return $ TVoid Nothing)
 
 instance Var (Program Position) where
     var p@(Program _ topDefs) = do
         levelUp
-        addType p
+        _ <- addType p
+        levelUp
         forM_ topDefs var
         levelDown
+        levelDown
+
+    addType p@(Program _ topDefs) = forM_ topDefs addType >> (return $ TVoid Nothing)
 
 instance Var (TopDef Position) where
+    addType (FnDef _ fn) = addType fn
+    addType a = notImplemented a >> (return $ TVoid Nothing)
+
+instance Var (Fn Position) where
+    addType (Fn pos t ident args _) = do
+        t_ <- addType t
+        argsT <- mapM addType args
+        let funT = Fun Nothing t_ argsT
+        addVar ident pos $ funT
+        return funT
+
+instance Var (Type Position) where
+
+instance Var (Arg Position) where
 
