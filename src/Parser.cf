@@ -29,7 +29,7 @@ separator  Stmt "" ;
 Empty.     Stmt ::= ";" ;
 BStmt.     Stmt ::= Block ;
 Decl.      Stmt ::= Type [Item] ";" ;
-Ass.       Stmt ::= Ident "=" Expr  ";" ;
+Ass.       Stmt ::= Expr "=" Expr  ";" ;
 Incr.      Stmt ::= Ident "++"  ";" ;
 Decr.      Stmt ::= Ident "--"  ";" ;
 Ret.       Stmt ::= "return" Expr ";" ;
@@ -60,14 +60,14 @@ separator  Type "," ;
 
 -- Expressions ---------------------------------------------
 
-EVar.      Expr6 ::= Ident ;
-ELitInt.   Expr6 ::= Integer ;
-ELitTrue.  Expr6 ::= "true" ;
-ELitFalse. Expr6 ::= "false" ;
-ELitNull.  Expr6 ::= "null" ;
-ENewAllo.  Expr6 ::= NewAlloc ;
-EApp.      Expr6 ::= Ident "(" [Expr] ")" ;
-EArr.      Expr6 ::= Ident "[" Expr "]" ;
+EVar.      Expr6 ::= [Ident] ;
+EConstant. Expr6 ::= Constant ;
+EFieldAcc. Expr6 ::= FieldAcc ;
+EMth.      Expr6 ::= MthCall ;
+ESpecName. Expr6 ::= SpecName ;
+ENewAlloc. Expr6 ::= NewAlloc ;
+EApp.      Expr6 ::= Ident Args ;
+EArr.      Expr6 ::= ArrAcc ;
 EString.   Expr6 ::= String ;
 ENeg.      Expr5 ::= "-" Expr6 ;
 ENot.      Expr5 ::= "!" Expr6 ;
@@ -80,9 +80,41 @@ coercions  Expr 6 ;
 
 separator  Expr "," ;
 
+SSsuper.   SpecName ::= "super" ;
+SSthis.    SpecName ::= "this" ;
+SSnull.    SpecName ::= "null";
+
 NewArr.         NewAlloc ::= "new" BasicType "[" Expr "]" ;
 NewObj.         NewAlloc ::= "new" Ident ;
-NewObjConst.    NewAlloc ::= "new" Ident "(" [Expr] ")" ;
+NewObjConst.    NewAlloc ::= "new" Ident Args ;
+
+Aarr.      ArrAcc ::= [Ident] "[" Expr "]" ;
+Aarr1.     ArrAcc ::= SpecExp "[" Expr "]" ;
+
+Cep.       SpecExp ::= "(" Expr ")" ;
+Cnp.       SpecExp ::= SpecExpNP ;
+Cthis.     SpecExp ::= SpecName ;
+
+CNLit.     SpecExpNP ::= Constant ;
+CNParr.    SpecExpNP ::= ArrAcc ;
+CNPmth.    SpecExpNP ::= MthCall ;
+CNPfld.    SpecExpNP ::= FieldAcc ;
+
+Mmth.      MthCall ::= [Ident] Args ;
+Mmth1.     MthCall ::= SpecExpNP Args ;
+Mmthspec.  MthCall ::= SpecName Args ;
+
+Ffvar.     FieldAcc ::= SpecExp "." Ident ;
+Ffvar1.    FieldAcc ::= NewAlloc "." Ident ;
+
+Args.      Args ::= "(" [Expr] ")" ;
+
+-- constants -----------------------------------------------
+
+Cint.      Constant ::= Integer ;
+Cfalse.    Constant ::= "false" ;
+Ctrue.     Constant ::= "true" ;
+
 
 -- operators -----------------------------------------------
 
@@ -104,3 +136,7 @@ comment    "#" ;
 comment    "//" ;
 comment    "/*" "*/" ;
 
+
+-- Ident ---------------------------------------------------
+
+separator nonempty Ident "." ;

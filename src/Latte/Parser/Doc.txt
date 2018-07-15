@@ -18,12 +18,12 @@ reserved words excluded.
 
 ===Literals===
 
-Integer literals //Integer// are nonempty sequences of digits.
-
-
 String literals //String// have the form
 ``"``//x//``"``}, where //x// is any sequence of any characters
 except ``"`` unless preceded by ``\``.
+
+
+Integer literals //Integer// are nonempty sequences of digits.
 
 
 
@@ -35,16 +35,17 @@ The reserved words used in Parser are the following:
   | ``boolean`` | ``class`` | ``else`` | ``extends``
   | ``false`` | ``for`` | ``if`` | ``int``
   | ``new`` | ``null`` | ``return`` | ``string``
-  | ``true`` | ``void`` | ``while`` | 
+  | ``super`` | ``this`` | ``true`` | ``void``
+  | ``while`` |  |  | 
 
 The symbols used in Parser are the following:
   | { | } | ( | )
   | ; | , | = | ++
   | -- | : | [ | ]
   | - | ! | && | ||
-  | + | * | / | %
-  | < | <= | > | >=
-  | == | != |  | 
+  | . | + | * | /
+  | % | < | <= | >
+  | >= | == | != | 
 
 ===Comments===
 Single-line comments begin with #, //.Multiple-line comments are  enclosed with /* and */.
@@ -77,7 +78,7 @@ All other symbols are terminals.
   | //Stmt// | -> | ``;`` 
   |  |  **|**  | //Block// 
   |  |  **|**  | //Type// //[Item]// ``;`` 
-  |  |  **|**  | //Ident// ``=`` //Expr// ``;`` 
+  |  |  **|**  | //Expr// ``=`` //Expr// ``;`` 
   |  |  **|**  | //Ident// ``++`` ``;`` 
   |  |  **|**  | //Ident// ``--`` ``;`` 
   |  |  **|**  | ``return`` //Expr// ``;`` 
@@ -101,14 +102,14 @@ All other symbols are terminals.
   | //[Type]// | -> | **eps**
   |  |  **|**  | //Type// 
   |  |  **|**  | //Type// ``,`` //[Type]// 
-  | //Expr6// | -> | //Ident// 
-  |  |  **|**  | //Integer// 
-  |  |  **|**  | ``true`` 
-  |  |  **|**  | ``false`` 
-  |  |  **|**  | ``null`` 
+  | //Expr6// | -> | //[Ident]// 
+  |  |  **|**  | //Constant// 
+  |  |  **|**  | //FieldAcc// 
+  |  |  **|**  | //MthCall// 
+  |  |  **|**  | //SpecName// 
   |  |  **|**  | //NewAlloc// 
-  |  |  **|**  | //Ident// ``(`` //[Expr]// ``)`` 
-  |  |  **|**  | //Ident// ``[`` //Expr// ``]`` 
+  |  |  **|**  | //Ident// //Args// 
+  |  |  **|**  | //ArrAcc// 
   |  |  **|**  | //String// 
   |  |  **|**  | ``(`` //Expr// ``)`` 
   | //Expr5// | -> | ``-`` //Expr6// 
@@ -127,9 +128,30 @@ All other symbols are terminals.
   | //[Expr]// | -> | **eps**
   |  |  **|**  | //Expr// 
   |  |  **|**  | //Expr// ``,`` //[Expr]// 
+  | //SpecName// | -> | ``super`` 
+  |  |  **|**  | ``this`` 
+  |  |  **|**  | ``null`` 
   | //NewAlloc// | -> | ``new`` //BasicType// ``[`` //Expr// ``]`` 
   |  |  **|**  | ``new`` //Ident// 
-  |  |  **|**  | ``new`` //Ident// ``(`` //[Expr]// ``)`` 
+  |  |  **|**  | ``new`` //Ident// //Args// 
+  | //ArrAcc// | -> | //[Ident]// ``[`` //Expr// ``]`` 
+  |  |  **|**  | //SpecExp// ``[`` //Expr// ``]`` 
+  | //SpecExp// | -> | ``(`` //Expr// ``)`` 
+  |  |  **|**  | //SpecExpNP// 
+  |  |  **|**  | //SpecName// 
+  | //SpecExpNP// | -> | //Constant// 
+  |  |  **|**  | //ArrAcc// 
+  |  |  **|**  | //MthCall// 
+  |  |  **|**  | //FieldAcc// 
+  | //MthCall// | -> | //[Ident]// //Args// 
+  |  |  **|**  | //SpecExpNP// //Args// 
+  |  |  **|**  | //SpecName// //Args// 
+  | //FieldAcc// | -> | //SpecExp// ``.`` //Ident// 
+  |  |  **|**  | //NewAlloc// ``.`` //Ident// 
+  | //Args// | -> | ``(`` //[Expr]// ``)`` 
+  | //Constant// | -> | //Integer// 
+  |  |  **|**  | ``false`` 
+  |  |  **|**  | ``true`` 
   | //AddOp// | -> | ``+`` 
   |  |  **|**  | ``-`` 
   | //MulOp// | -> | ``*`` 
@@ -141,5 +163,7 @@ All other symbols are terminals.
   |  |  **|**  | ``>=`` 
   |  |  **|**  | ``==`` 
   |  |  **|**  | ``!=`` 
+  | //[Ident]// | -> | //Ident// 
+  |  |  **|**  | //Ident// ``.`` //[Ident]// 
 
 

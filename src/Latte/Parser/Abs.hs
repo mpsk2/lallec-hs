@@ -57,7 +57,7 @@ data Stmt a
     = Empty a
     | BStmt a (Block a)
     | Decl a (Type a) [Item a]
-    | Ass a Ident (Expr a)
+    | Ass a (Expr a) (Expr a)
     | Incr a Ident
     | Decr a Ident
     | Ret a (Expr a)
@@ -74,7 +74,7 @@ instance Functor Stmt where
         Empty a -> Empty (f a)
         BStmt a block -> BStmt (f a) (fmap f block)
         Decl a type_ items -> Decl (f a) (fmap f type_) (map (fmap f) items)
-        Ass a ident expr -> Ass (f a) ident (fmap f expr)
+        Ass a expr1 expr2 -> Ass (f a) (fmap f expr1) (fmap f expr2)
         Incr a ident -> Incr (f a) ident
         Decr a ident -> Decr (f a) ident
         Ret a expr -> Ret (f a) (fmap f expr)
@@ -115,14 +115,14 @@ instance Functor Type where
         TObj a ident -> TObj (f a) ident
         Fun a type_ types -> Fun (f a) (fmap f type_) (map (fmap f) types)
 data Expr a
-    = EVar a Ident
-    | ELitInt a Integer
-    | ELitTrue a
-    | ELitFalse a
-    | ELitNull a
-    | ENewAllo a (NewAlloc a)
-    | EApp a Ident [Expr a]
-    | EArr a Ident (Expr a)
+    = EVar a [Ident]
+    | EConstant a (Constant a)
+    | EFieldAcc a (FieldAcc a)
+    | EMth a (MthCall a)
+    | ESpecName a (SpecName a)
+    | ENewAlloc a (NewAlloc a)
+    | EApp a Ident (Args a)
+    | EArr a (ArrAcc a)
     | EString a String
     | ENeg a (Expr a)
     | ENot a (Expr a)
@@ -135,14 +135,14 @@ data Expr a
 
 instance Functor Expr where
     fmap f x = case x of
-        EVar a ident -> EVar (f a) ident
-        ELitInt a integer -> ELitInt (f a) integer
-        ELitTrue a -> ELitTrue (f a)
-        ELitFalse a -> ELitFalse (f a)
-        ELitNull a -> ELitNull (f a)
-        ENewAllo a newalloc -> ENewAllo (f a) (fmap f newalloc)
-        EApp a ident exprs -> EApp (f a) ident (map (fmap f) exprs)
-        EArr a ident expr -> EArr (f a) ident (fmap f expr)
+        EVar a idents -> EVar (f a) idents
+        EConstant a constant -> EConstant (f a) (fmap f constant)
+        EFieldAcc a fieldacc -> EFieldAcc (f a) (fmap f fieldacc)
+        EMth a mthcall -> EMth (f a) (fmap f mthcall)
+        ESpecName a specname -> ESpecName (f a) (fmap f specname)
+        ENewAlloc a newalloc -> ENewAlloc (f a) (fmap f newalloc)
+        EApp a ident args -> EApp (f a) ident (fmap f args)
+        EArr a arracc -> EArr (f a) (fmap f arracc)
         EString a string -> EString (f a) string
         ENeg a expr -> ENeg (f a) (fmap f expr)
         ENot a expr -> ENot (f a) (fmap f expr)
@@ -151,17 +151,88 @@ instance Functor Expr where
         ERel a expr1 relop expr2 -> ERel (f a) (fmap f expr1) (fmap f relop) (fmap f expr2)
         EAnd a expr1 expr2 -> EAnd (f a) (fmap f expr1) (fmap f expr2)
         EOr a expr1 expr2 -> EOr (f a) (fmap f expr1) (fmap f expr2)
+data SpecName a = SSsuper a | SSthis a | SSnull a
+  deriving (Eq, Ord, Show, Read)
+
+instance Functor SpecName where
+    fmap f x = case x of
+        SSsuper a -> SSsuper (f a)
+        SSthis a -> SSthis (f a)
+        SSnull a -> SSnull (f a)
 data NewAlloc a
     = NewArr a (BasicType a) (Expr a)
     | NewObj a Ident
-    | NewObjConst a Ident [Expr a]
+    | NewObjConst a Ident (Args a)
   deriving (Eq, Ord, Show, Read)
 
 instance Functor NewAlloc where
     fmap f x = case x of
         NewArr a basictype expr -> NewArr (f a) (fmap f basictype) (fmap f expr)
         NewObj a ident -> NewObj (f a) ident
-        NewObjConst a ident exprs -> NewObjConst (f a) ident (map (fmap f) exprs)
+        NewObjConst a ident args -> NewObjConst (f a) ident (fmap f args)
+data ArrAcc a
+    = Aarr a [Ident] (Expr a) | Aarr1 a (SpecExp a) (Expr a)
+  deriving (Eq, Ord, Show, Read)
+
+instance Functor ArrAcc where
+    fmap f x = case x of
+        Aarr a idents expr -> Aarr (f a) idents (fmap f expr)
+        Aarr1 a specexp expr -> Aarr1 (f a) (fmap f specexp) (fmap f expr)
+data SpecExp a
+    = Cep a (Expr a) | Cnp a (SpecExpNP a) | Cthis a (SpecName a)
+  deriving (Eq, Ord, Show, Read)
+
+instance Functor SpecExp where
+    fmap f x = case x of
+        Cep a expr -> Cep (f a) (fmap f expr)
+        Cnp a specexpnp -> Cnp (f a) (fmap f specexpnp)
+        Cthis a specname -> Cthis (f a) (fmap f specname)
+data SpecExpNP a
+    = CNLit a (Constant a)
+    | CNParr a (ArrAcc a)
+    | CNPmth a (MthCall a)
+    | CNPfld a (FieldAcc a)
+  deriving (Eq, Ord, Show, Read)
+
+instance Functor SpecExpNP where
+    fmap f x = case x of
+        CNLit a constant -> CNLit (f a) (fmap f constant)
+        CNParr a arracc -> CNParr (f a) (fmap f arracc)
+        CNPmth a mthcall -> CNPmth (f a) (fmap f mthcall)
+        CNPfld a fieldacc -> CNPfld (f a) (fmap f fieldacc)
+data MthCall a
+    = Mmth a [Ident] (Args a)
+    | Mmth1 a (SpecExpNP a) (Args a)
+    | Mmthspec a (SpecName a) (Args a)
+  deriving (Eq, Ord, Show, Read)
+
+instance Functor MthCall where
+    fmap f x = case x of
+        Mmth a idents args -> Mmth (f a) idents (fmap f args)
+        Mmth1 a specexpnp args -> Mmth1 (f a) (fmap f specexpnp) (fmap f args)
+        Mmthspec a specname args -> Mmthspec (f a) (fmap f specname) (fmap f args)
+data FieldAcc a
+    = Ffvar a (SpecExp a) Ident | Ffvar1 a (NewAlloc a) Ident
+  deriving (Eq, Ord, Show, Read)
+
+instance Functor FieldAcc where
+    fmap f x = case x of
+        Ffvar a specexp ident -> Ffvar (f a) (fmap f specexp) ident
+        Ffvar1 a newalloc ident -> Ffvar1 (f a) (fmap f newalloc) ident
+data Args a = Args a [Expr a]
+  deriving (Eq, Ord, Show, Read)
+
+instance Functor Args where
+    fmap f x = case x of
+        Args a exprs -> Args (f a) (map (fmap f) exprs)
+data Constant a = Cint a Integer | Cfalse a | Ctrue a
+  deriving (Eq, Ord, Show, Read)
+
+instance Functor Constant where
+    fmap f x = case x of
+        Cint a integer -> Cint (f a) integer
+        Cfalse a -> Cfalse (f a)
+        Ctrue a -> Ctrue (f a)
 data AddOp a = Plus a | Minus a
   deriving (Eq, Ord, Show, Read)
 

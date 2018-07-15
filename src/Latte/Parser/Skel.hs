@@ -41,7 +41,7 @@ transStmt x = case x of
   Empty _ -> failure x
   BStmt _ block -> failure x
   Decl _ type_ items -> failure x
-  Ass _ ident expr -> failure x
+  Ass _ expr1 expr2 -> failure x
   Incr _ ident -> failure x
   Decr _ ident -> failure x
   Ret _ expr -> failure x
@@ -69,14 +69,14 @@ transType x = case x of
   Fun _ type_ types -> failure x
 transExpr :: Show a => Expr a -> Result
 transExpr x = case x of
-  EVar _ ident -> failure x
-  ELitInt _ integer -> failure x
-  ELitTrue _ -> failure x
-  ELitFalse _ -> failure x
-  ELitNull _ -> failure x
-  ENewAllo _ newalloc -> failure x
-  EApp _ ident exprs -> failure x
-  EArr _ ident expr -> failure x
+  EVar _ idents -> failure x
+  EConstant _ constant -> failure x
+  EFieldAcc _ fieldacc -> failure x
+  EMth _ mthcall -> failure x
+  ESpecName _ specname -> failure x
+  ENewAlloc _ newalloc -> failure x
+  EApp _ ident args -> failure x
+  EArr _ arracc -> failure x
   EString _ string -> failure x
   ENeg _ expr -> failure x
   ENot _ expr -> failure x
@@ -85,11 +85,48 @@ transExpr x = case x of
   ERel _ expr1 relop expr2 -> failure x
   EAnd _ expr1 expr2 -> failure x
   EOr _ expr1 expr2 -> failure x
+transSpecName :: Show a => SpecName a -> Result
+transSpecName x = case x of
+  SSsuper _ -> failure x
+  SSthis _ -> failure x
+  SSnull _ -> failure x
 transNewAlloc :: Show a => NewAlloc a -> Result
 transNewAlloc x = case x of
   NewArr _ basictype expr -> failure x
   NewObj _ ident -> failure x
-  NewObjConst _ ident exprs -> failure x
+  NewObjConst _ ident args -> failure x
+transArrAcc :: Show a => ArrAcc a -> Result
+transArrAcc x = case x of
+  Aarr _ idents expr -> failure x
+  Aarr1 _ specexp expr -> failure x
+transSpecExp :: Show a => SpecExp a -> Result
+transSpecExp x = case x of
+  Cep _ expr -> failure x
+  Cnp _ specexpnp -> failure x
+  Cthis _ specname -> failure x
+transSpecExpNP :: Show a => SpecExpNP a -> Result
+transSpecExpNP x = case x of
+  CNLit _ constant -> failure x
+  CNParr _ arracc -> failure x
+  CNPmth _ mthcall -> failure x
+  CNPfld _ fieldacc -> failure x
+transMthCall :: Show a => MthCall a -> Result
+transMthCall x = case x of
+  Mmth _ idents args -> failure x
+  Mmth1 _ specexpnp args -> failure x
+  Mmthspec _ specname args -> failure x
+transFieldAcc :: Show a => FieldAcc a -> Result
+transFieldAcc x = case x of
+  Ffvar _ specexp ident -> failure x
+  Ffvar1 _ newalloc ident -> failure x
+transArgs :: Show a => Args a -> Result
+transArgs x = case x of
+  Args _ exprs -> failure x
+transConstant :: Show a => Constant a -> Result
+transConstant x = case x of
+  Cint _ integer -> failure x
+  Cfalse _ -> failure x
+  Ctrue _ -> failure x
 transAddOp :: Show a => AddOp a -> Result
 transAddOp x = case x of
   Plus _ -> failure x

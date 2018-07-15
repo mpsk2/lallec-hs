@@ -80,7 +80,8 @@ instance Print Double where
 
 instance Print Ident where
   prt _ (Ident i) = doc (showString ( i))
-
+  prtList _ [x] = (concatD [prt 0 x])
+  prtList _ (x:xs) = (concatD [prt 0 x, doc (showString "."), prt 0 xs])
 
 
 instance Print (Program a) where
@@ -123,7 +124,7 @@ instance Print (Stmt a) where
     Empty _ -> prPrec i 0 (concatD [doc (showString ";")])
     BStmt _ block -> prPrec i 0 (concatD [prt 0 block])
     Decl _ type_ items -> prPrec i 0 (concatD [prt 0 type_, prt 0 items, doc (showString ";")])
-    Ass _ id expr -> prPrec i 0 (concatD [prt 0 id, doc (showString "="), prt 0 expr, doc (showString ";")])
+    Ass _ expr1 expr2 -> prPrec i 0 (concatD [prt 0 expr1, doc (showString "="), prt 0 expr2, doc (showString ";")])
     Incr _ id -> prPrec i 0 (concatD [prt 0 id, doc (showString "++"), doc (showString ";")])
     Decr _ id -> prPrec i 0 (concatD [prt 0 id, doc (showString "--"), doc (showString ";")])
     Ret _ expr -> prPrec i 0 (concatD [doc (showString "return"), prt 0 expr, doc (showString ";")])
@@ -159,14 +160,14 @@ instance Print (Type a) where
   prtList _ (x:xs) = (concatD [prt 0 x, doc (showString ","), prt 0 xs])
 instance Print (Expr a) where
   prt i e = case e of
-    EVar _ id -> prPrec i 6 (concatD [prt 0 id])
-    ELitInt _ n -> prPrec i 6 (concatD [prt 0 n])
-    ELitTrue _ -> prPrec i 6 (concatD [doc (showString "true")])
-    ELitFalse _ -> prPrec i 6 (concatD [doc (showString "false")])
-    ELitNull _ -> prPrec i 6 (concatD [doc (showString "null")])
-    ENewAllo _ newalloc -> prPrec i 6 (concatD [prt 0 newalloc])
-    EApp _ id exprs -> prPrec i 6 (concatD [prt 0 id, doc (showString "("), prt 0 exprs, doc (showString ")")])
-    EArr _ id expr -> prPrec i 6 (concatD [prt 0 id, doc (showString "["), prt 0 expr, doc (showString "]")])
+    EVar _ ids -> prPrec i 6 (concatD [prt 0 ids])
+    EConstant _ constant -> prPrec i 6 (concatD [prt 0 constant])
+    EFieldAcc _ fieldacc -> prPrec i 6 (concatD [prt 0 fieldacc])
+    EMth _ mthcall -> prPrec i 6 (concatD [prt 0 mthcall])
+    ESpecName _ specname -> prPrec i 6 (concatD [prt 0 specname])
+    ENewAlloc _ newalloc -> prPrec i 6 (concatD [prt 0 newalloc])
+    EApp _ id args -> prPrec i 6 (concatD [prt 0 id, prt 0 args])
+    EArr _ arracc -> prPrec i 6 (concatD [prt 0 arracc])
     EString _ str -> prPrec i 6 (concatD [prt 0 str])
     ENeg _ expr -> prPrec i 5 (concatD [doc (showString "-"), prt 6 expr])
     ENot _ expr -> prPrec i 5 (concatD [doc (showString "!"), prt 6 expr])
@@ -178,11 +179,56 @@ instance Print (Expr a) where
   prtList _ [] = (concatD [])
   prtList _ [x] = (concatD [prt 0 x])
   prtList _ (x:xs) = (concatD [prt 0 x, doc (showString ","), prt 0 xs])
+instance Print (SpecName a) where
+  prt i e = case e of
+    SSsuper _ -> prPrec i 0 (concatD [doc (showString "super")])
+    SSthis _ -> prPrec i 0 (concatD [doc (showString "this")])
+    SSnull _ -> prPrec i 0 (concatD [doc (showString "null")])
+
 instance Print (NewAlloc a) where
   prt i e = case e of
     NewArr _ basictype expr -> prPrec i 0 (concatD [doc (showString "new"), prt 0 basictype, doc (showString "["), prt 0 expr, doc (showString "]")])
     NewObj _ id -> prPrec i 0 (concatD [doc (showString "new"), prt 0 id])
-    NewObjConst _ id exprs -> prPrec i 0 (concatD [doc (showString "new"), prt 0 id, doc (showString "("), prt 0 exprs, doc (showString ")")])
+    NewObjConst _ id args -> prPrec i 0 (concatD [doc (showString "new"), prt 0 id, prt 0 args])
+
+instance Print (ArrAcc a) where
+  prt i e = case e of
+    Aarr _ ids expr -> prPrec i 0 (concatD [prt 0 ids, doc (showString "["), prt 0 expr, doc (showString "]")])
+    Aarr1 _ specexp expr -> prPrec i 0 (concatD [prt 0 specexp, doc (showString "["), prt 0 expr, doc (showString "]")])
+
+instance Print (SpecExp a) where
+  prt i e = case e of
+    Cep _ expr -> prPrec i 0 (concatD [doc (showString "("), prt 0 expr, doc (showString ")")])
+    Cnp _ specexpnp -> prPrec i 0 (concatD [prt 0 specexpnp])
+    Cthis _ specname -> prPrec i 0 (concatD [prt 0 specname])
+
+instance Print (SpecExpNP a) where
+  prt i e = case e of
+    CNLit _ constant -> prPrec i 0 (concatD [prt 0 constant])
+    CNParr _ arracc -> prPrec i 0 (concatD [prt 0 arracc])
+    CNPmth _ mthcall -> prPrec i 0 (concatD [prt 0 mthcall])
+    CNPfld _ fieldacc -> prPrec i 0 (concatD [prt 0 fieldacc])
+
+instance Print (MthCall a) where
+  prt i e = case e of
+    Mmth _ ids args -> prPrec i 0 (concatD [prt 0 ids, prt 0 args])
+    Mmth1 _ specexpnp args -> prPrec i 0 (concatD [prt 0 specexpnp, prt 0 args])
+    Mmthspec _ specname args -> prPrec i 0 (concatD [prt 0 specname, prt 0 args])
+
+instance Print (FieldAcc a) where
+  prt i e = case e of
+    Ffvar _ specexp id -> prPrec i 0 (concatD [prt 0 specexp, doc (showString "."), prt 0 id])
+    Ffvar1 _ newalloc id -> prPrec i 0 (concatD [prt 0 newalloc, doc (showString "."), prt 0 id])
+
+instance Print (Args a) where
+  prt i e = case e of
+    Args _ exprs -> prPrec i 0 (concatD [doc (showString "("), prt 0 exprs, doc (showString ")")])
+
+instance Print (Constant a) where
+  prt i e = case e of
+    Cint _ n -> prPrec i 0 (concatD [prt 0 n])
+    Cfalse _ -> prPrec i 0 (concatD [doc (showString "false")])
+    Ctrue _ -> prPrec i 0 (concatD [doc (showString "true")])
 
 instance Print (AddOp a) where
   prt i e = case e of

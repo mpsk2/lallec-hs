@@ -25,39 +25,42 @@ import Latte.Parser.ErrM
   ',' { PT _ (TS _ 10) }
   '-' { PT _ (TS _ 11) }
   '--' { PT _ (TS _ 12) }
-  '/' { PT _ (TS _ 13) }
-  ':' { PT _ (TS _ 14) }
-  ';' { PT _ (TS _ 15) }
-  '<' { PT _ (TS _ 16) }
-  '<=' { PT _ (TS _ 17) }
-  '=' { PT _ (TS _ 18) }
-  '==' { PT _ (TS _ 19) }
-  '>' { PT _ (TS _ 20) }
-  '>=' { PT _ (TS _ 21) }
-  '[' { PT _ (TS _ 22) }
-  ']' { PT _ (TS _ 23) }
-  'boolean' { PT _ (TS _ 24) }
-  'class' { PT _ (TS _ 25) }
-  'else' { PT _ (TS _ 26) }
-  'extends' { PT _ (TS _ 27) }
-  'false' { PT _ (TS _ 28) }
-  'for' { PT _ (TS _ 29) }
-  'if' { PT _ (TS _ 30) }
-  'int' { PT _ (TS _ 31) }
-  'new' { PT _ (TS _ 32) }
-  'null' { PT _ (TS _ 33) }
-  'return' { PT _ (TS _ 34) }
-  'string' { PT _ (TS _ 35) }
-  'true' { PT _ (TS _ 36) }
-  'void' { PT _ (TS _ 37) }
-  'while' { PT _ (TS _ 38) }
-  '{' { PT _ (TS _ 39) }
-  '||' { PT _ (TS _ 40) }
-  '}' { PT _ (TS _ 41) }
+  '.' { PT _ (TS _ 13) }
+  '/' { PT _ (TS _ 14) }
+  ':' { PT _ (TS _ 15) }
+  ';' { PT _ (TS _ 16) }
+  '<' { PT _ (TS _ 17) }
+  '<=' { PT _ (TS _ 18) }
+  '=' { PT _ (TS _ 19) }
+  '==' { PT _ (TS _ 20) }
+  '>' { PT _ (TS _ 21) }
+  '>=' { PT _ (TS _ 22) }
+  '[' { PT _ (TS _ 23) }
+  ']' { PT _ (TS _ 24) }
+  'boolean' { PT _ (TS _ 25) }
+  'class' { PT _ (TS _ 26) }
+  'else' { PT _ (TS _ 27) }
+  'extends' { PT _ (TS _ 28) }
+  'false' { PT _ (TS _ 29) }
+  'for' { PT _ (TS _ 30) }
+  'if' { PT _ (TS _ 31) }
+  'int' { PT _ (TS _ 32) }
+  'new' { PT _ (TS _ 33) }
+  'null' { PT _ (TS _ 34) }
+  'return' { PT _ (TS _ 35) }
+  'string' { PT _ (TS _ 36) }
+  'super' { PT _ (TS _ 37) }
+  'this' { PT _ (TS _ 38) }
+  'true' { PT _ (TS _ 39) }
+  'void' { PT _ (TS _ 40) }
+  'while' { PT _ (TS _ 41) }
+  '{' { PT _ (TS _ 42) }
+  '||' { PT _ (TS _ 43) }
+  '}' { PT _ (TS _ 44) }
 
   L_ident {PT _ (TV _)}
-  L_integ {PT _ (TI _)}
   L_quoted {PT _ (TL _)}
+  L_integ {PT _ (TI _)}
 
 %%
 
@@ -68,18 +71,18 @@ Ident :: {
   (Just (tokenLineCol $1), Ident (prToken $1)) 
 }
 
-Integer :: {
-  (Maybe (Int, Int), Integer)
-}
-: L_integ {
-  (Just (tokenLineCol $1), read (prToken $1)) 
-}
-
 String :: {
   (Maybe (Int, Int), String)
 }
 : L_quoted {
   (Just (tokenLineCol $1), prToken $1)
+}
+
+Integer :: {
+  (Maybe (Int, Int), Integer)
+}
+: L_integ {
+  (Just (tokenLineCol $1), read (prToken $1)) 
 }
 
 Program :: {
@@ -195,7 +198,7 @@ Stmt :: {
 | Type ListItem ';' {
   (fst $1, Latte.Parser.Abs.Decl (fst $1)(snd $1)(snd $2)) 
 }
-| Ident '=' Expr ';' {
+| Expr '=' Expr ';' {
   (fst $1, Latte.Parser.Abs.Ass (fst $1)(snd $1)(snd $3)) 
 }
 | Ident '++' ';' {
@@ -291,29 +294,29 @@ ListType :: {
 Expr6 :: {
   (Maybe (Int, Int), Expr (Maybe (Int, Int)))
 }
-: Ident {
+: ListIdent {
   (fst $1, Latte.Parser.Abs.EVar (fst $1)(snd $1)) 
 }
-| Integer {
-  (fst $1, Latte.Parser.Abs.ELitInt (fst $1)(snd $1)) 
+| Constant {
+  (fst $1, Latte.Parser.Abs.EConstant (fst $1)(snd $1)) 
 }
-| 'true' {
-  (Just (tokenLineCol $1), Latte.Parser.Abs.ELitTrue (Just (tokenLineCol $1)))
+| FieldAcc {
+  (fst $1, Latte.Parser.Abs.EFieldAcc (fst $1)(snd $1)) 
 }
-| 'false' {
-  (Just (tokenLineCol $1), Latte.Parser.Abs.ELitFalse (Just (tokenLineCol $1)))
+| MthCall {
+  (fst $1, Latte.Parser.Abs.EMth (fst $1)(snd $1)) 
 }
-| 'null' {
-  (Just (tokenLineCol $1), Latte.Parser.Abs.ELitNull (Just (tokenLineCol $1)))
+| SpecName {
+  (fst $1, Latte.Parser.Abs.ESpecName (fst $1)(snd $1)) 
 }
 | NewAlloc {
-  (fst $1, Latte.Parser.Abs.ENewAllo (fst $1)(snd $1)) 
+  (fst $1, Latte.Parser.Abs.ENewAlloc (fst $1)(snd $1)) 
 }
-| Ident '(' ListExpr ')' {
-  (fst $1, Latte.Parser.Abs.EApp (fst $1)(snd $1)(snd $3)) 
+| Ident Args {
+  (fst $1, Latte.Parser.Abs.EApp (fst $1)(snd $1)(snd $2)) 
 }
-| Ident '[' Expr ']' {
-  (fst $1, Latte.Parser.Abs.EArr (fst $1)(snd $1)(snd $3)) 
+| ArrAcc {
+  (fst $1, Latte.Parser.Abs.EArr (fst $1)(snd $1)) 
 }
 | String {
   (fst $1, Latte.Parser.Abs.EString (fst $1)(snd $1)) 
@@ -398,6 +401,19 @@ ListExpr :: {
   (fst $1, (:) (snd $1)(snd $3)) 
 }
 
+SpecName :: {
+  (Maybe (Int, Int), SpecName (Maybe (Int, Int)))
+}
+: 'super' {
+  (Just (tokenLineCol $1), Latte.Parser.Abs.SSsuper (Just (tokenLineCol $1)))
+}
+| 'this' {
+  (Just (tokenLineCol $1), Latte.Parser.Abs.SSthis (Just (tokenLineCol $1)))
+}
+| 'null' {
+  (Just (tokenLineCol $1), Latte.Parser.Abs.SSnull (Just (tokenLineCol $1)))
+}
+
 NewAlloc :: {
   (Maybe (Int, Int), NewAlloc (Maybe (Int, Int)))
 }
@@ -407,8 +423,90 @@ NewAlloc :: {
 | 'new' Ident {
   (Just (tokenLineCol $1), Latte.Parser.Abs.NewObj (Just (tokenLineCol $1)) (snd $2)) 
 }
-| 'new' Ident '(' ListExpr ')' {
-  (Just (tokenLineCol $1), Latte.Parser.Abs.NewObjConst (Just (tokenLineCol $1)) (snd $2)(snd $4)) 
+| 'new' Ident Args {
+  (Just (tokenLineCol $1), Latte.Parser.Abs.NewObjConst (Just (tokenLineCol $1)) (snd $2)(snd $3)) 
+}
+
+ArrAcc :: {
+  (Maybe (Int, Int), ArrAcc (Maybe (Int, Int)))
+}
+: ListIdent '[' Expr ']' {
+  (fst $1, Latte.Parser.Abs.Aarr (fst $1)(snd $1)(snd $3)) 
+}
+| SpecExp '[' Expr ']' {
+  (fst $1, Latte.Parser.Abs.Aarr1 (fst $1)(snd $1)(snd $3)) 
+}
+
+SpecExp :: {
+  (Maybe (Int, Int), SpecExp (Maybe (Int, Int)))
+}
+: '(' Expr ')' {
+  (Just (tokenLineCol $1), Latte.Parser.Abs.Cep (Just (tokenLineCol $1)) (snd $2)) 
+}
+| SpecExpNP {
+  (fst $1, Latte.Parser.Abs.Cnp (fst $1)(snd $1)) 
+}
+| SpecName {
+  (fst $1, Latte.Parser.Abs.Cthis (fst $1)(snd $1)) 
+}
+
+SpecExpNP :: {
+  (Maybe (Int, Int), SpecExpNP (Maybe (Int, Int)))
+}
+: Constant {
+  (fst $1, Latte.Parser.Abs.CNLit (fst $1)(snd $1)) 
+}
+| ArrAcc {
+  (fst $1, Latte.Parser.Abs.CNParr (fst $1)(snd $1)) 
+}
+| MthCall {
+  (fst $1, Latte.Parser.Abs.CNPmth (fst $1)(snd $1)) 
+}
+| FieldAcc {
+  (fst $1, Latte.Parser.Abs.CNPfld (fst $1)(snd $1)) 
+}
+
+MthCall :: {
+  (Maybe (Int, Int), MthCall (Maybe (Int, Int)))
+}
+: ListIdent Args {
+  (fst $1, Latte.Parser.Abs.Mmth (fst $1)(snd $1)(snd $2)) 
+}
+| SpecExpNP Args {
+  (fst $1, Latte.Parser.Abs.Mmth1 (fst $1)(snd $1)(snd $2)) 
+}
+| SpecName Args {
+  (fst $1, Latte.Parser.Abs.Mmthspec (fst $1)(snd $1)(snd $2)) 
+}
+
+FieldAcc :: {
+  (Maybe (Int, Int), FieldAcc (Maybe (Int, Int)))
+}
+: SpecExp '.' Ident {
+  (fst $1, Latte.Parser.Abs.Ffvar (fst $1)(snd $1)(snd $3)) 
+}
+| NewAlloc '.' Ident {
+  (fst $1, Latte.Parser.Abs.Ffvar1 (fst $1)(snd $1)(snd $3)) 
+}
+
+Args :: {
+  (Maybe (Int, Int), Args (Maybe (Int, Int)))
+}
+: '(' ListExpr ')' {
+  (Just (tokenLineCol $1), Latte.Parser.Abs.Args (Just (tokenLineCol $1)) (snd $2)) 
+}
+
+Constant :: {
+  (Maybe (Int, Int), Constant (Maybe (Int, Int)))
+}
+: Integer {
+  (fst $1, Latte.Parser.Abs.Cint (fst $1)(snd $1)) 
+}
+| 'false' {
+  (Just (tokenLineCol $1), Latte.Parser.Abs.Cfalse (Just (tokenLineCol $1)))
+}
+| 'true' {
+  (Just (tokenLineCol $1), Latte.Parser.Abs.Ctrue (Just (tokenLineCol $1)))
 }
 
 AddOp :: {
@@ -454,6 +552,16 @@ RelOp :: {
 }
 | '!=' {
   (Just (tokenLineCol $1), Latte.Parser.Abs.NE (Just (tokenLineCol $1)))
+}
+
+ListIdent :: {
+  (Maybe (Int, Int), [Ident]) 
+}
+: Ident {
+  (fst $1, (:[]) (snd $1)) 
+}
+| Ident '.' ListIdent {
+  (fst $1, (:) (snd $1)(snd $3)) 
 }
 
 {
