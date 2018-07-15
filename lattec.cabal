@@ -26,9 +26,13 @@ library
                      , Latte.Parser.Print
                      , Latte.Parser.Skel
                      , Latte.Parser.Test
+                     , Latte.Validations
+                     , Latte.Validations.Var
   build-depends:       argparser
                      , array
                      , base >= 4.7 && < 5
+                     , containers
+                     , lens
                      , mtl
   default-language:    Haskell2010
   build-tools:         alex

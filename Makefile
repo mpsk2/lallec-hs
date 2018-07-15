@@ -4,7 +4,6 @@ SOURCE_TEST = $(shell find test -name '*.lhs' -o -name '*.hs')
 ABS = src/Latte/Parser/Abs.hs
 
 all: lattec
-	echo "All"
 
 lattec: $(SOURCE) $(SOURCE_APP) $(ABS)
 	cabal build
