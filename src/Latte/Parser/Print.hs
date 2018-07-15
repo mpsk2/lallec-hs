@@ -171,6 +171,7 @@ instance Print (Expr a) where
     EString _ str -> prPrec i 6 (concatD [prt 0 str])
     ENeg _ expr -> prPrec i 5 (concatD [doc (showString "-"), prt 6 expr])
     ENot _ expr -> prPrec i 5 (concatD [doc (showString "!"), prt 6 expr])
+    ECast _ id expr -> prPrec i 5 (concatD [doc (showString "("), prt 0 id, doc (showString ")"), prt 6 expr])
     EMul _ expr1 mulop expr2 -> prPrec i 4 (concatD [prt 4 expr1, prt 0 mulop, prt 5 expr2])
     EAdd _ expr1 addop expr2 -> prPrec i 3 (concatD [prt 3 expr1, prt 0 addop, prt 4 expr2])
     ERel _ expr1 relop expr2 -> prPrec i 2 (concatD [prt 2 expr1, prt 0 relop, prt 3 expr2])

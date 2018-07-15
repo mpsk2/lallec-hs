@@ -80,6 +80,7 @@ transExpr x = case x of
   EString _ string -> failure x
   ENeg _ expr -> failure x
   ENot _ expr -> failure x
+  ECast _ ident expr -> failure x
   EMul _ expr1 mulop expr2 -> failure x
   EAdd _ expr1 addop expr2 -> failure x
   ERel _ expr1 relop expr2 -> failure x

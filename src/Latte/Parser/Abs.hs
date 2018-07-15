@@ -126,6 +126,7 @@ data Expr a
     | EString a String
     | ENeg a (Expr a)
     | ENot a (Expr a)
+    | ECast a Ident (Expr a)
     | EMul a (Expr a) (MulOp a) (Expr a)
     | EAdd a (Expr a) (AddOp a) (Expr a)
     | ERel a (Expr a) (RelOp a) (Expr a)
@@ -146,6 +147,7 @@ instance Functor Expr where
         EString a string -> EString (f a) string
         ENeg a expr -> ENeg (f a) (fmap f expr)
         ENot a expr -> ENot (f a) (fmap f expr)
+        ECast a ident expr -> ECast (f a) ident (fmap f expr)
         EMul a expr1 mulop expr2 -> EMul (f a) (fmap f expr1) (fmap f mulop) (fmap f expr2)
         EAdd a expr1 addop expr2 -> EAdd (f a) (fmap f expr1) (fmap f addop) (fmap f expr2)
         ERel a expr1 relop expr2 -> ERel (f a) (fmap f expr1) (fmap f relop) (fmap f expr2)

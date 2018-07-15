@@ -334,6 +334,9 @@ Expr5 :: {
 | '!' Expr6 {
   (Just (tokenLineCol $1), Latte.Parser.Abs.ENot (Just (tokenLineCol $1)) (snd $2)) 
 }
+| '(' Ident ')' Expr6 {
+  (Just (tokenLineCol $1), Latte.Parser.Abs.ECast (Just (tokenLineCol $1)) (snd $2)(snd $4)) 
+}
 | Expr6 {
   (fst $1, snd $1)
 }
