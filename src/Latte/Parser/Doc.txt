@@ -106,9 +106,7 @@ All other symbols are terminals.
   |  |  **|**  | ``true`` 
   |  |  **|**  | ``false`` 
   |  |  **|**  | ``null`` 
-  |  |  **|**  | ``new`` //BasicType// ``[`` //Expr// ``]`` 
-  |  |  **|**  | ``new`` //Ident// 
-  |  |  **|**  | ``new`` //Ident// ``(`` //[Expr]// ``)`` 
+  |  |  **|**  | //NewAlloc// 
   |  |  **|**  | //Ident// ``(`` //[Expr]// ``)`` 
   |  |  **|**  | //Ident// ``[`` //Expr// ``]`` 
   |  |  **|**  | //String// 
@@ -129,6 +127,9 @@ All other symbols are terminals.
   | //[Expr]// | -> | **eps**
   |  |  **|**  | //Expr// 
   |  |  **|**  | //Expr// ``,`` //[Expr]// 
+  | //NewAlloc// | -> | ``new`` //BasicType// ``[`` //Expr// ``]`` 
+  |  |  **|**  | ``new`` //Ident// 
+  |  |  **|**  | ``new`` //Ident// ``(`` //[Expr]// ``)`` 
   | //AddOp// | -> | ``+`` 
   |  |  **|**  | ``-`` 
   | //MulOp// | -> | ``*`` 

@@ -74,9 +74,7 @@ transExpr x = case x of
   ELitTrue _ -> failure x
   ELitFalse _ -> failure x
   ELitNull _ -> failure x
-  ENewArr _ basictype expr -> failure x
-  ENewObj _ ident -> failure x
-  ENewObjConstructor _ ident exprs -> failure x
+  ENewAllo _ newalloc -> failure x
   EApp _ ident exprs -> failure x
   EArr _ ident expr -> failure x
   EString _ string -> failure x
@@ -87,6 +85,11 @@ transExpr x = case x of
   ERel _ expr1 relop expr2 -> failure x
   EAnd _ expr1 expr2 -> failure x
   EOr _ expr1 expr2 -> failure x
+transNewAlloc :: Show a => NewAlloc a -> Result
+transNewAlloc x = case x of
+  NewArr _ basictype expr -> failure x
+  NewObj _ ident -> failure x
+  NewObjConst _ ident exprs -> failure x
 transAddOp :: Show a => AddOp a -> Result
 transAddOp x = case x of
   Plus _ -> failure x

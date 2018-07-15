@@ -120,9 +120,7 @@ data Expr a
     | ELitTrue a
     | ELitFalse a
     | ELitNull a
-    | ENewArr a (BasicType a) (Expr a)
-    | ENewObj a Ident
-    | ENewObjConstructor a Ident [Expr a]
+    | ENewAllo a (NewAlloc a)
     | EApp a Ident [Expr a]
     | EArr a Ident (Expr a)
     | EString a String
@@ -142,9 +140,7 @@ instance Functor Expr where
         ELitTrue a -> ELitTrue (f a)
         ELitFalse a -> ELitFalse (f a)
         ELitNull a -> ELitNull (f a)
-        ENewArr a basictype expr -> ENewArr (f a) (fmap f basictype) (fmap f expr)
-        ENewObj a ident -> ENewObj (f a) ident
-        ENewObjConstructor a ident exprs -> ENewObjConstructor (f a) ident (map (fmap f) exprs)
+        ENewAllo a newalloc -> ENewAllo (f a) (fmap f newalloc)
         EApp a ident exprs -> EApp (f a) ident (map (fmap f) exprs)
         EArr a ident expr -> EArr (f a) ident (fmap f expr)
         EString a string -> EString (f a) string
@@ -155,6 +151,17 @@ instance Functor Expr where
         ERel a expr1 relop expr2 -> ERel (f a) (fmap f expr1) (fmap f relop) (fmap f expr2)
         EAnd a expr1 expr2 -> EAnd (f a) (fmap f expr1) (fmap f expr2)
         EOr a expr1 expr2 -> EOr (f a) (fmap f expr1) (fmap f expr2)
+data NewAlloc a
+    = NewArr a (BasicType a) (Expr a)
+    | NewObj a Ident
+    | NewObjConst a Ident [Expr a]
+  deriving (Eq, Ord, Show, Read)
+
+instance Functor NewAlloc where
+    fmap f x = case x of
+        NewArr a basictype expr -> NewArr (f a) (fmap f basictype) (fmap f expr)
+        NewObj a ident -> NewObj (f a) ident
+        NewObjConst a ident exprs -> NewObjConst (f a) ident (map (fmap f) exprs)
 data AddOp a = Plus a | Minus a
   deriving (Eq, Ord, Show, Read)
 

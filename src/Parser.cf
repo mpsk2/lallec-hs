@@ -65,9 +65,7 @@ ELitInt.   Expr6 ::= Integer ;
 ELitTrue.  Expr6 ::= "true" ;
 ELitFalse. Expr6 ::= "false" ;
 ELitNull.  Expr6 ::= "null" ;
-ENewArr.   Expr6 ::= "new" BasicType "[" Expr "]" ;
-ENewObj.   Expr6 ::= "new" Ident ;
-ENewObjConstructor.   Expr6 ::= "new" Ident "(" [Expr] ")" ;
+ENewAllo.  Expr6 ::= NewAlloc ;
 EApp.      Expr6 ::= Ident "(" [Expr] ")" ;
 EArr.      Expr6 ::= Ident "[" Expr "]" ;
 EString.   Expr6 ::= String ;
@@ -81,6 +79,10 @@ EOr.       Expr ::= Expr1 "||" Expr ;
 coercions  Expr 6 ;
 
 separator  Expr "," ;
+
+NewArr.         NewAlloc ::= "new" BasicType "[" Expr "]" ;
+NewObj.         NewAlloc ::= "new" Ident ;
+NewObjConst.    NewAlloc ::= "new" Ident "(" [Expr] ")" ;
 
 -- operators -----------------------------------------------
 

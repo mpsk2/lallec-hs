@@ -306,14 +306,8 @@ Expr6 :: {
 | 'null' {
   (Just (tokenLineCol $1), Latte.Parser.Abs.ELitNull (Just (tokenLineCol $1)))
 }
-| 'new' BasicType '[' Expr ']' {
-  (Just (tokenLineCol $1), Latte.Parser.Abs.ENewArr (Just (tokenLineCol $1)) (snd $2)(snd $4)) 
-}
-| 'new' Ident {
-  (Just (tokenLineCol $1), Latte.Parser.Abs.ENewObj (Just (tokenLineCol $1)) (snd $2)) 
-}
-| 'new' Ident '(' ListExpr ')' {
-  (Just (tokenLineCol $1), Latte.Parser.Abs.ENewObjConstructor (Just (tokenLineCol $1)) (snd $2)(snd $4)) 
+| NewAlloc {
+  (fst $1, Latte.Parser.Abs.ENewAllo (fst $1)(snd $1)) 
 }
 | Ident '(' ListExpr ')' {
   (fst $1, Latte.Parser.Abs.EApp (fst $1)(snd $1)(snd $3)) 
@@ -402,6 +396,19 @@ ListExpr :: {
 }
 | Expr ',' ListExpr {
   (fst $1, (:) (snd $1)(snd $3)) 
+}
+
+NewAlloc :: {
+  (Maybe (Int, Int), NewAlloc (Maybe (Int, Int)))
+}
+: 'new' BasicType '[' Expr ']' {
+  (Just (tokenLineCol $1), Latte.Parser.Abs.NewArr (Just (tokenLineCol $1)) (snd $2)(snd $4)) 
+}
+| 'new' Ident {
+  (Just (tokenLineCol $1), Latte.Parser.Abs.NewObj (Just (tokenLineCol $1)) (snd $2)) 
+}
+| 'new' Ident '(' ListExpr ')' {
+  (Just (tokenLineCol $1), Latte.Parser.Abs.NewObjConst (Just (tokenLineCol $1)) (snd $2)(snd $4)) 
 }
 
 AddOp :: {

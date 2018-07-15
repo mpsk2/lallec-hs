@@ -164,9 +164,7 @@ instance Print (Expr a) where
     ELitTrue _ -> prPrec i 6 (concatD [doc (showString "true")])
     ELitFalse _ -> prPrec i 6 (concatD [doc (showString "false")])
     ELitNull _ -> prPrec i 6 (concatD [doc (showString "null")])
-    ENewArr _ basictype expr -> prPrec i 6 (concatD [doc (showString "new"), prt 0 basictype, doc (showString "["), prt 0 expr, doc (showString "]")])
-    ENewObj _ id -> prPrec i 6 (concatD [doc (showString "new"), prt 0 id])
-    ENewObjConstructor _ id exprs -> prPrec i 6 (concatD [doc (showString "new"), prt 0 id, doc (showString "("), prt 0 exprs, doc (showString ")")])
+    ENewAllo _ newalloc -> prPrec i 6 (concatD [prt 0 newalloc])
     EApp _ id exprs -> prPrec i 6 (concatD [prt 0 id, doc (showString "("), prt 0 exprs, doc (showString ")")])
     EArr _ id expr -> prPrec i 6 (concatD [prt 0 id, doc (showString "["), prt 0 expr, doc (showString "]")])
     EString _ str -> prPrec i 6 (concatD [prt 0 str])
@@ -180,6 +178,12 @@ instance Print (Expr a) where
   prtList _ [] = (concatD [])
   prtList _ [x] = (concatD [prt 0 x])
   prtList _ (x:xs) = (concatD [prt 0 x, doc (showString ","), prt 0 xs])
+instance Print (NewAlloc a) where
+  prt i e = case e of
+    NewArr _ basictype expr -> prPrec i 0 (concatD [doc (showString "new"), prt 0 basictype, doc (showString "["), prt 0 expr, doc (showString "]")])
+    NewObj _ id -> prPrec i 0 (concatD [doc (showString "new"), prt 0 id])
+    NewObjConst _ id exprs -> prPrec i 0 (concatD [doc (showString "new"), prt 0 id, doc (showString "("), prt 0 exprs, doc (showString ")")])
+
 instance Print (AddOp a) where
   prt i e = case e of
     Plus _ -> prPrec i 0 (concatD [doc (showString "+")])
