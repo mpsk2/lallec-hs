@@ -39,7 +39,7 @@ parseTest f@(File _ (path, code)) = do
         let parsed = run 0 pProgram code
         parsed `shouldSatisfy` (isOk path)
         let (Ok prog) = parsed
-        let runner = varProgram prog
+        let runner = var prog
         res <- runLatteRunner initialVarState runner
         res `shouldSatisfy` passes
 
