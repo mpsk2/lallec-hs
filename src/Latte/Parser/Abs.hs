@@ -65,6 +65,7 @@ data Stmt a
     | Cond a (Expr a) (Stmt a)
     | CondElse a (Expr a) (Stmt a) (Stmt a)
     | While a (Expr a) (Stmt a)
+    | ForEach a (Type a) Ident Ident (Stmt a)
     | SExp a (Expr a)
   deriving (Eq, Ord, Show, Read)
 
@@ -81,6 +82,7 @@ instance Functor Stmt where
         Cond a expr stmt -> Cond (f a) (fmap f expr) (fmap f stmt)
         CondElse a expr stmt1 stmt2 -> CondElse (f a) (fmap f expr) (fmap f stmt1) (fmap f stmt2)
         While a expr stmt -> While (f a) (fmap f expr) (fmap f stmt)
+        ForEach a type_ ident1 ident2 stmt -> ForEach (f a) (fmap f type_) ident1 ident2 (fmap f stmt)
         SExp a expr -> SExp (f a) (fmap f expr)
 data Item a = NoInit a Ident | Init a Ident (Expr a)
   deriving (Eq, Ord, Show, Read)
@@ -89,28 +91,37 @@ instance Functor Item where
     fmap f x = case x of
         NoInit a ident -> NoInit (f a) ident
         Init a ident expr -> Init (f a) ident (fmap f expr)
+data BasicType a = TInt a | TStr a | TBool a
+  deriving (Eq, Ord, Show, Read)
+
+instance Functor BasicType where
+    fmap f x = case x of
+        TInt a -> TInt (f a)
+        TStr a -> TStr (f a)
+        TBool a -> TBool (f a)
 data Type a
-    = TInt a
-    | TStr a
-    | TBool a
-    | TVoid a
+    = TVoid a
     | TArr a (Type a)
+    | TBasic a (BasicType a)
+    | TObj a Ident
     | Fun a (Type a) [Type a]
   deriving (Eq, Ord, Show, Read)
 
 instance Functor Type where
     fmap f x = case x of
-        TInt a -> TInt (f a)
-        TStr a -> TStr (f a)
-        TBool a -> TBool (f a)
         TVoid a -> TVoid (f a)
         TArr a type_ -> TArr (f a) (fmap f type_)
+        TBasic a basictype -> TBasic (f a) (fmap f basictype)
+        TObj a ident -> TObj (f a) ident
         Fun a type_ types -> Fun (f a) (fmap f type_) (map (fmap f) types)
 data Expr a
     = EVar a Ident
     | ELitInt a Integer
     | ELitTrue a
     | ELitFalse a
+    | ENewArr a (BasicType a) (Expr a)
+    | ENewObj a Ident
+    | ENewObjConstructor a Ident [Expr a]
     | EApp a Ident [Expr a]
     | EArr a Ident (Expr a)
     | EString a String
@@ -129,6 +140,9 @@ instance Functor Expr where
         ELitInt a integer -> ELitInt (f a) integer
         ELitTrue a -> ELitTrue (f a)
         ELitFalse a -> ELitFalse (f a)
+        ENewArr a basictype expr -> ENewArr (f a) (fmap f basictype) (fmap f expr)
+        ENewObj a ident -> ENewObj (f a) ident
+        ENewObjConstructor a ident exprs -> ENewObjConstructor (f a) ident (map (fmap f) exprs)
         EApp a ident exprs -> EApp (f a) ident (map (fmap f) exprs)
         EArr a ident expr -> EArr (f a) ident (fmap f expr)
         EString a string -> EString (f a) string

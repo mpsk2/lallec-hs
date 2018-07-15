@@ -26,30 +26,33 @@ import Latte.Parser.ErrM
   '-' { PT _ (TS _ 11) }
   '--' { PT _ (TS _ 12) }
   '/' { PT _ (TS _ 13) }
-  ';' { PT _ (TS _ 14) }
-  '<' { PT _ (TS _ 15) }
-  '<=' { PT _ (TS _ 16) }
-  '=' { PT _ (TS _ 17) }
-  '==' { PT _ (TS _ 18) }
-  '>' { PT _ (TS _ 19) }
-  '>=' { PT _ (TS _ 20) }
-  '[' { PT _ (TS _ 21) }
-  ']' { PT _ (TS _ 22) }
-  'boolean' { PT _ (TS _ 23) }
-  'class' { PT _ (TS _ 24) }
-  'else' { PT _ (TS _ 25) }
-  'extends' { PT _ (TS _ 26) }
-  'false' { PT _ (TS _ 27) }
-  'if' { PT _ (TS _ 28) }
-  'int' { PT _ (TS _ 29) }
-  'return' { PT _ (TS _ 30) }
-  'string' { PT _ (TS _ 31) }
-  'true' { PT _ (TS _ 32) }
-  'void' { PT _ (TS _ 33) }
-  'while' { PT _ (TS _ 34) }
-  '{' { PT _ (TS _ 35) }
-  '||' { PT _ (TS _ 36) }
-  '}' { PT _ (TS _ 37) }
+  ':' { PT _ (TS _ 14) }
+  ';' { PT _ (TS _ 15) }
+  '<' { PT _ (TS _ 16) }
+  '<=' { PT _ (TS _ 17) }
+  '=' { PT _ (TS _ 18) }
+  '==' { PT _ (TS _ 19) }
+  '>' { PT _ (TS _ 20) }
+  '>=' { PT _ (TS _ 21) }
+  '[' { PT _ (TS _ 22) }
+  ']' { PT _ (TS _ 23) }
+  'boolean' { PT _ (TS _ 24) }
+  'class' { PT _ (TS _ 25) }
+  'else' { PT _ (TS _ 26) }
+  'extends' { PT _ (TS _ 27) }
+  'false' { PT _ (TS _ 28) }
+  'for' { PT _ (TS _ 29) }
+  'if' { PT _ (TS _ 30) }
+  'int' { PT _ (TS _ 31) }
+  'new' { PT _ (TS _ 32) }
+  'return' { PT _ (TS _ 33) }
+  'string' { PT _ (TS _ 34) }
+  'true' { PT _ (TS _ 35) }
+  'void' { PT _ (TS _ 36) }
+  'while' { PT _ (TS _ 37) }
+  '{' { PT _ (TS _ 38) }
+  '||' { PT _ (TS _ 39) }
+  '}' { PT _ (TS _ 40) }
 
   L_ident {PT _ (TV _)}
   L_integ {PT _ (TI _)}
@@ -215,6 +218,9 @@ Stmt :: {
 | 'while' '(' Expr ')' Stmt {
   (Just (tokenLineCol $1), Latte.Parser.Abs.While (Just (tokenLineCol $1)) (snd $3)(snd $5)) 
 }
+| 'for' '(' Type Ident ':' Ident ')' Stmt {
+  (Just (tokenLineCol $1), Latte.Parser.Abs.ForEach (Just (tokenLineCol $1)) (snd $3)(snd $4)(snd $6)(snd $8)) 
+}
 | Expr ';' {
   (fst $1, Latte.Parser.Abs.SExp (fst $1)(snd $1)) 
 }
@@ -239,8 +245,8 @@ ListItem :: {
   (fst $1, (:) (snd $1)(snd $3)) 
 }
 
-Type :: {
-  (Maybe (Int, Int), Type (Maybe (Int, Int)))
+BasicType :: {
+  (Maybe (Int, Int), BasicType (Maybe (Int, Int)))
 }
 : 'int' {
   (Just (tokenLineCol $1), Latte.Parser.Abs.TInt (Just (tokenLineCol $1)))
@@ -251,11 +257,21 @@ Type :: {
 | 'boolean' {
   (Just (tokenLineCol $1), Latte.Parser.Abs.TBool (Just (tokenLineCol $1)))
 }
-| 'void' {
+
+Type :: {
+  (Maybe (Int, Int), Type (Maybe (Int, Int)))
+}
+: 'void' {
   (Just (tokenLineCol $1), Latte.Parser.Abs.TVoid (Just (tokenLineCol $1)))
 }
 | Type '[' ']' {
   (fst $1, Latte.Parser.Abs.TArr (fst $1)(snd $1)) 
+}
+| BasicType {
+  (fst $1, Latte.Parser.Abs.TBasic (fst $1)(snd $1)) 
+}
+| Ident {
+  (fst $1, Latte.Parser.Abs.TObj (fst $1)(snd $1)) 
 }
 
 ListType :: {
@@ -285,6 +301,15 @@ Expr6 :: {
 }
 | 'false' {
   (Just (tokenLineCol $1), Latte.Parser.Abs.ELitFalse (Just (tokenLineCol $1)))
+}
+| 'new' BasicType '[' Expr ']' {
+  (Just (tokenLineCol $1), Latte.Parser.Abs.ENewArr (Just (tokenLineCol $1)) (snd $2)(snd $4)) 
+}
+| 'new' Ident {
+  (Just (tokenLineCol $1), Latte.Parser.Abs.ENewObj (Just (tokenLineCol $1)) (snd $2)) 
+}
+| 'new' Ident '(' ListExpr ')' {
+  (Just (tokenLineCol $1), Latte.Parser.Abs.ENewObjConstructor (Just (tokenLineCol $1)) (snd $2)(snd $4)) 
 }
 | Ident '(' ListExpr ')' {
   (fst $1, Latte.Parser.Abs.EApp (fst $1)(snd $1)(snd $3)) 

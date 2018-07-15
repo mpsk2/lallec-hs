@@ -49,18 +49,23 @@ transStmt x = case x of
   Cond _ expr stmt -> failure x
   CondElse _ expr stmt1 stmt2 -> failure x
   While _ expr stmt -> failure x
+  ForEach _ type_ ident1 ident2 stmt -> failure x
   SExp _ expr -> failure x
 transItem :: Show a => Item a -> Result
 transItem x = case x of
   NoInit _ ident -> failure x
   Init _ ident expr -> failure x
-transType :: Show a => Type a -> Result
-transType x = case x of
+transBasicType :: Show a => BasicType a -> Result
+transBasicType x = case x of
   TInt _ -> failure x
   TStr _ -> failure x
   TBool _ -> failure x
+transType :: Show a => Type a -> Result
+transType x = case x of
   TVoid _ -> failure x
   TArr _ type_ -> failure x
+  TBasic _ basictype -> failure x
+  TObj _ ident -> failure x
   Fun _ type_ types -> failure x
 transExpr :: Show a => Expr a -> Result
 transExpr x = case x of
@@ -68,6 +73,9 @@ transExpr x = case x of
   ELitInt _ integer -> failure x
   ELitTrue _ -> failure x
   ELitFalse _ -> failure x
+  ENewArr _ basictype expr -> failure x
+  ENewObj _ ident -> failure x
+  ENewObjConstructor _ ident exprs -> failure x
   EApp _ ident exprs -> failure x
   EArr _ ident expr -> failure x
   EString _ string -> failure x

@@ -131,6 +131,7 @@ instance Print (Stmt a) where
     Cond _ expr stmt -> prPrec i 0 (concatD [doc (showString "if"), doc (showString "("), prt 0 expr, doc (showString ")"), prt 0 stmt])
     CondElse _ expr stmt1 stmt2 -> prPrec i 0 (concatD [doc (showString "if"), doc (showString "("), prt 0 expr, doc (showString ")"), prt 0 stmt1, doc (showString "else"), prt 0 stmt2])
     While _ expr stmt -> prPrec i 0 (concatD [doc (showString "while"), doc (showString "("), prt 0 expr, doc (showString ")"), prt 0 stmt])
+    ForEach _ type_ id1 id2 stmt -> prPrec i 0 (concatD [doc (showString "for"), doc (showString "("), prt 0 type_, prt 0 id1, doc (showString ":"), prt 0 id2, doc (showString ")"), prt 0 stmt])
     SExp _ expr -> prPrec i 0 (concatD [prt 0 expr, doc (showString ";")])
   prtList _ [] = (concatD [])
   prtList _ (x:xs) = (concatD [prt 0 x, prt 0 xs])
@@ -140,13 +141,18 @@ instance Print (Item a) where
     Init _ id expr -> prPrec i 0 (concatD [prt 0 id, doc (showString "="), prt 0 expr])
   prtList _ [x] = (concatD [prt 0 x])
   prtList _ (x:xs) = (concatD [prt 0 x, doc (showString ","), prt 0 xs])
-instance Print (Type a) where
+instance Print (BasicType a) where
   prt i e = case e of
     TInt _ -> prPrec i 0 (concatD [doc (showString "int")])
     TStr _ -> prPrec i 0 (concatD [doc (showString "string")])
     TBool _ -> prPrec i 0 (concatD [doc (showString "boolean")])
+
+instance Print (Type a) where
+  prt i e = case e of
     TVoid _ -> prPrec i 0 (concatD [doc (showString "void")])
     TArr _ type_ -> prPrec i 0 (concatD [prt 0 type_, doc (showString "["), doc (showString "]")])
+    TBasic _ basictype -> prPrec i 0 (concatD [prt 0 basictype])
+    TObj _ id -> prPrec i 0 (concatD [prt 0 id])
     Fun _ type_ types -> prPrec i 0 (concatD [prt 0 type_, doc (showString "("), prt 0 types, doc (showString ")")])
   prtList _ [] = (concatD [])
   prtList _ [x] = (concatD [prt 0 x])
@@ -157,6 +163,9 @@ instance Print (Expr a) where
     ELitInt _ n -> prPrec i 6 (concatD [prt 0 n])
     ELitTrue _ -> prPrec i 6 (concatD [doc (showString "true")])
     ELitFalse _ -> prPrec i 6 (concatD [doc (showString "false")])
+    ENewArr _ basictype expr -> prPrec i 6 (concatD [doc (showString "new"), prt 0 basictype, doc (showString "["), prt 0 expr, doc (showString "]")])
+    ENewObj _ id -> prPrec i 6 (concatD [doc (showString "new"), prt 0 id])
+    ENewObjConstructor _ id exprs -> prPrec i 6 (concatD [doc (showString "new"), prt 0 id, doc (showString "("), prt 0 exprs, doc (showString ")")])
     EApp _ id exprs -> prPrec i 6 (concatD [prt 0 id, doc (showString "("), prt 0 exprs, doc (showString ")")])
     EArr _ id expr -> prPrec i 6 (concatD [prt 0 id, doc (showString "["), prt 0 expr, doc (showString "]")])
     EString _ str -> prPrec i 6 (concatD [prt 0 str])

@@ -33,17 +33,18 @@ The set of reserved words is the set of terminals appearing in the grammar. Thos
 
 The reserved words used in Parser are the following:
   | ``boolean`` | ``class`` | ``else`` | ``extends``
-  | ``false`` | ``if`` | ``int`` | ``return``
-  | ``string`` | ``true`` | ``void`` | ``while``
+  | ``false`` | ``for`` | ``if`` | ``int``
+  | ``new`` | ``return`` | ``string`` | ``true``
+  | ``void`` | ``while`` |  | 
 
 The symbols used in Parser are the following:
   | { | } | ( | )
   | ; | , | = | ++
-  | -- | [ | ] | -
-  | ! | && | || | +
-  | * | / | % | <
-  | <= | > | >= | ==
-  | != |  |  | 
+  | -- | : | [ | ]
+  | - | ! | && | ||
+  | + | * | / | %
+  | < | <= | > | >=
+  | == | != |  | 
 
 ===Comments===
 Single-line comments begin with #, //.Multiple-line comments are  enclosed with /* and */.
@@ -84,16 +85,19 @@ All other symbols are terminals.
   |  |  **|**  | ``if`` ``(`` //Expr// ``)`` //Stmt// 
   |  |  **|**  | ``if`` ``(`` //Expr// ``)`` //Stmt// ``else`` //Stmt// 
   |  |  **|**  | ``while`` ``(`` //Expr// ``)`` //Stmt// 
+  |  |  **|**  | ``for`` ``(`` //Type// //Ident// ``:`` //Ident// ``)`` //Stmt// 
   |  |  **|**  | //Expr// ``;`` 
   | //Item// | -> | //Ident// 
   |  |  **|**  | //Ident// ``=`` //Expr// 
   | //[Item]// | -> | //Item// 
   |  |  **|**  | //Item// ``,`` //[Item]// 
-  | //Type// | -> | ``int`` 
+  | //BasicType// | -> | ``int`` 
   |  |  **|**  | ``string`` 
   |  |  **|**  | ``boolean`` 
-  |  |  **|**  | ``void`` 
+  | //Type// | -> | ``void`` 
   |  |  **|**  | //Type// ``[`` ``]`` 
+  |  |  **|**  | //BasicType// 
+  |  |  **|**  | //Ident// 
   | //[Type]// | -> | **eps**
   |  |  **|**  | //Type// 
   |  |  **|**  | //Type// ``,`` //[Type]// 
@@ -101,6 +105,9 @@ All other symbols are terminals.
   |  |  **|**  | //Integer// 
   |  |  **|**  | ``true`` 
   |  |  **|**  | ``false`` 
+  |  |  **|**  | ``new`` //BasicType// ``[`` //Expr// ``]`` 
+  |  |  **|**  | ``new`` //Ident// 
+  |  |  **|**  | ``new`` //Ident// ``(`` //[Expr]// ``)`` 
   |  |  **|**  | //Ident// ``(`` //[Expr]// ``)`` 
   |  |  **|**  | //Ident// ``[`` //Expr// ``]`` 
   |  |  **|**  | //String// 

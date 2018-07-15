@@ -37,6 +37,7 @@ VRet.      Stmt ::= "return" ";" ;
 Cond.      Stmt ::= "if" "(" Expr ")" Stmt  ;
 CondElse.  Stmt ::= "if" "(" Expr ")" Stmt "else" Stmt  ;
 While.     Stmt ::= "while" "(" Expr ")" Stmt ;
+ForEach.   Stmt ::= "for" "(" Type Ident ":" Ident ")" Stmt ;
 SExp.      Stmt ::= Expr  ";" ;
 
 NoInit.    Item ::= Ident ;
@@ -46,11 +47,13 @@ separator nonempty Item "," ;
 
 -- Types ---------------------------------------------------
 
-TInt.      Type ::= "int" ;
-TStr.      Type ::= "string" ;
-TBool.     Type ::= "boolean" ;
+TInt.      BasicType ::= "int" ;
+TStr.      BasicType ::= "string" ;
+TBool.     BasicType ::= "boolean" ;
 TVoid.     Type ::= "void" ;
 TArr.      Type ::= Type "[" "]" ;
+TBasic.    Type ::= BasicType ;
+TObj.      Type ::= Ident ;
 internal   Fun. Type ::= Type "(" [Type] ")" ;
 
 separator  Type "," ;
@@ -61,6 +64,9 @@ EVar.      Expr6 ::= Ident ;
 ELitInt.   Expr6 ::= Integer ;
 ELitTrue.  Expr6 ::= "true" ;
 ELitFalse. Expr6 ::= "false" ;
+ENewArr.   Expr6 ::= "new" BasicType "[" Expr "]" ;
+ENewObj.   Expr6 ::= "new" Ident ;
+ENewObjConstructor.   Expr6 ::= "new" Ident "(" [Expr] ")" ;
 EApp.      Expr6 ::= Ident "(" [Expr] ")" ;
 EArr.      Expr6 ::= Ident "[" Expr "]" ;
 EString.   Expr6 ::= String ;
