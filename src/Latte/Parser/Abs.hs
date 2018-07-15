@@ -41,12 +41,12 @@ instance Functor ClsElem where
     fmap f x = case x of
         Method a fn -> Method (f a) (fmap f fn)
         Field a type_ ident -> Field (f a) (fmap f type_) ident
-data Arg a = Arg a (Type a) Ident
+data Arg a = NoValArg a (Type a) Ident
   deriving (Eq, Ord, Show, Read)
 
 instance Functor Arg where
     fmap f x = case x of
-        Arg a type_ ident -> Arg (f a) (fmap f type_) ident
+        NoValArg a type_ ident -> NoValArg (f a) (fmap f type_) ident
 data Block a = Block a [Stmt a]
   deriving (Eq, Ord, Show, Read)
 
@@ -119,6 +119,7 @@ data Expr a
     | ELitInt a Integer
     | ELitTrue a
     | ELitFalse a
+    | ELitNull a
     | ENewArr a (BasicType a) (Expr a)
     | ENewObj a Ident
     | ENewObjConstructor a Ident [Expr a]
@@ -140,6 +141,7 @@ instance Functor Expr where
         ELitInt a integer -> ELitInt (f a) integer
         ELitTrue a -> ELitTrue (f a)
         ELitFalse a -> ELitFalse (f a)
+        ELitNull a -> ELitNull (f a)
         ENewArr a basictype expr -> ENewArr (f a) (fmap f basictype) (fmap f expr)
         ENewObj a ident -> ENewObj (f a) ident
         ENewObjConstructor a ident exprs -> ENewObjConstructor (f a) ident (map (fmap f) exprs)

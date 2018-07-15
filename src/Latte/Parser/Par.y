@@ -45,14 +45,15 @@ import Latte.Parser.ErrM
   'if' { PT _ (TS _ 30) }
   'int' { PT _ (TS _ 31) }
   'new' { PT _ (TS _ 32) }
-  'return' { PT _ (TS _ 33) }
-  'string' { PT _ (TS _ 34) }
-  'true' { PT _ (TS _ 35) }
-  'void' { PT _ (TS _ 36) }
-  'while' { PT _ (TS _ 37) }
-  '{' { PT _ (TS _ 38) }
-  '||' { PT _ (TS _ 39) }
-  '}' { PT _ (TS _ 40) }
+  'null' { PT _ (TS _ 33) }
+  'return' { PT _ (TS _ 34) }
+  'string' { PT _ (TS _ 35) }
+  'true' { PT _ (TS _ 36) }
+  'void' { PT _ (TS _ 37) }
+  'while' { PT _ (TS _ 38) }
+  '{' { PT _ (TS _ 39) }
+  '||' { PT _ (TS _ 40) }
+  '}' { PT _ (TS _ 41) }
 
   L_ident {PT _ (TV _)}
   L_integ {PT _ (TI _)}
@@ -149,7 +150,7 @@ Arg :: {
   (Maybe (Int, Int), Arg (Maybe (Int, Int)))
 }
 : Type Ident {
-  (fst $1, Latte.Parser.Abs.Arg (fst $1)(snd $1)(snd $2)) 
+  (fst $1, Latte.Parser.Abs.NoValArg (fst $1)(snd $1)(snd $2)) 
 }
 
 ListArg :: {
@@ -301,6 +302,9 @@ Expr6 :: {
 }
 | 'false' {
   (Just (tokenLineCol $1), Latte.Parser.Abs.ELitFalse (Just (tokenLineCol $1)))
+}
+| 'null' {
+  (Just (tokenLineCol $1), Latte.Parser.Abs.ELitNull (Just (tokenLineCol $1)))
 }
 | 'new' BasicType '[' Expr ']' {
   (Just (tokenLineCol $1), Latte.Parser.Abs.ENewArr (Just (tokenLineCol $1)) (snd $2)(snd $4)) 

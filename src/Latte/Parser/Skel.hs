@@ -32,7 +32,7 @@ transClsElem x = case x of
   Field _ type_ ident -> failure x
 transArg :: Show a => Arg a -> Result
 transArg x = case x of
-  Arg _ type_ ident -> failure x
+  NoValArg _ type_ ident -> failure x
 transBlock :: Show a => Block a -> Result
 transBlock x = case x of
   Block _ stmts -> failure x
@@ -73,6 +73,7 @@ transExpr x = case x of
   ELitInt _ integer -> failure x
   ELitTrue _ -> failure x
   ELitFalse _ -> failure x
+  ELitNull _ -> failure x
   ENewArr _ basictype expr -> failure x
   ENewObj _ ident -> failure x
   ENewObjConstructor _ ident exprs -> failure x

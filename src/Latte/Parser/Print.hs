@@ -110,7 +110,7 @@ instance Print (ClsElem a) where
   prtList _ (x:xs) = (concatD [prt 0 x, prt 0 xs])
 instance Print (Arg a) where
   prt i e = case e of
-    Arg _ type_ id -> prPrec i 0 (concatD [prt 0 type_, prt 0 id])
+    NoValArg _ type_ id -> prPrec i 0 (concatD [prt 0 type_, prt 0 id])
   prtList _ [] = (concatD [])
   prtList _ [x] = (concatD [prt 0 x])
   prtList _ (x:xs) = (concatD [prt 0 x, doc (showString ","), prt 0 xs])
@@ -163,6 +163,7 @@ instance Print (Expr a) where
     ELitInt _ n -> prPrec i 6 (concatD [prt 0 n])
     ELitTrue _ -> prPrec i 6 (concatD [doc (showString "true")])
     ELitFalse _ -> prPrec i 6 (concatD [doc (showString "false")])
+    ELitNull _ -> prPrec i 6 (concatD [doc (showString "null")])
     ENewArr _ basictype expr -> prPrec i 6 (concatD [doc (showString "new"), prt 0 basictype, doc (showString "["), prt 0 expr, doc (showString "]")])
     ENewObj _ id -> prPrec i 6 (concatD [doc (showString "new"), prt 0 id])
     ENewObjConstructor _ id exprs -> prPrec i 6 (concatD [doc (showString "new"), prt 0 id, doc (showString "("), prt 0 exprs, doc (showString ")")])
