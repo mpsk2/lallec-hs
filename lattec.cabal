@@ -18,6 +18,7 @@ library
   exposed-modules:     Latte.CLI
                      , Latte.Commons
                      , Latte.Errors
+                     , Latte.Parser
                      , Latte.Parser.Abs
                      , Latte.Parser.ErrM
                      , Latte.Parser.Lex

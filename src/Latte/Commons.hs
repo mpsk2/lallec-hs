@@ -8,5 +8,5 @@ type Position = Maybe (Int, Int)
 
 type LatteRunner state retType = StateT state (ExceptT LatteError IO) retType
 
-runLatteRunner :: LatteRunner state retType -> state -> IO (Either LatteError (retType, state))
-runLatteRunner runner state = runExceptT $ runStateT runner state
+runLatteRunner :: state -> LatteRunner state retType -> IO (Either LatteError (retType, state))
+runLatteRunner state runner = runExceptT $ runStateT runner state
